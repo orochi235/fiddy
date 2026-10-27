@@ -1,0 +1,39 @@
+import type { ParamValue, Stage } from '../design.js';
+import type { Rng } from '../random.js';
+import type { Bud, TreeNode } from '../skeleton.js';
+
+export type ParamSpec =
+  | {
+      key: string;
+      label: string;
+      type: 'number';
+      default: number;
+      min: number;
+      max: number;
+      step: number;
+      suffix?: string;
+    }
+  | { key: string; label: string; type: 'text'; default: string };
+
+export interface StageContext {
+  stage: Stage;
+  /** Every param, defaults filled in. */
+  params: Record<string, ParamValue>;
+  /** The incoming buds the stage's selector chose. */
+  buds: readonly Bud[];
+  /** The incoming nodes, which the stage appends to; new ids continue from its length. */
+  nodes: TreeNode[];
+  rng: Rng;
+}
+
+/** One kind of stage: its params as data, which a UI builds its fields from, and what it does.
+ *  `apply` returns the open buds it leaves, which may include ones it was given; incoming buds
+ *  the selector did not choose pass through without it. */
+export interface StageKind {
+  kind: string;
+  title: string;
+  params: readonly ParamSpec[];
+  /** Takes no time in growth playback. */
+  instant?: boolean;
+  apply(ctx: StageContext): Bud[];
+}

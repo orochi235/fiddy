@@ -1,0 +1,129 @@
+import { describe, expect, it } from 'vitest';
+import { UPRIGHT } from '../frame.js';
+import type { TreeNode } from '../skeleton.js';
+import { PRESETS } from '../presets.js';
+import { parseGrammar } from './parse.js';
+import { derivations, derive, moduleText } from './rewrite.js';
+import { interpret, type TurtleOptions } from './turtle.js';
+import { type Grammar, ModuleCapError, ParseError } from './types.js';
+
+const FIG_1_24C = `n = 4   δ = 22.5°
+ω: F
+p1: F → FF-[-F+F+F]+[+F-F-F]`;
+
+function refused(source: string): ParseError {
+  try {
+    parseGrammar(source);
+  } catch (e) {
+    if (e instanceof ParseError) return e;
+    throw e;
+  }
+  throw new Error('parsed');
+}
+
+describe('parseGrammar', () => {
+  it("reads ABOP's notation, defines included", () => {
+    const g = parseGrammar(FIG_1_24C);
+    expect(moduleText(g.axiom)).toBe('F');
+    expect(moduleText(g.rules.F!.succ[0]!.body)).toBe('FF-[-F+F+F]+[+F-F-F]');
+    expect(g.defines).toEqual({ n: 4, delta: 22.5 });
+  });
+
+  it('reads the ASCII stand-ins and comments', () => {
+    const g = parseGrammar('w: X  # start\nX -> F[+X]F[-X]+X\nF->FF');
+    expect(moduleText(g.rules.X!.succ[0]!.body)).toBe('F[+X]F[-X]+X');
+    expect(Object.keys(g.rules)).toEqual(['X', 'F']);
+  });
+
+  it.each([
+    ['ω: F\np1: F (0.5) → F[+F]', 2, 7, 'piece 3'],
+    ['ω: A(1)', 1, 5, 'piece 4'],
+    ['ω: A\np1: A : t > 1 → F', 2, 7, 'piece 4'],
+    ['ω: A\np1: B < A → F', 2, 7, 'piece 5'],
+    ['ω: F\nF → FF\nF → F', 3, 1, 'piece 3'],
+  ])('refuses later-piece syntax with its position: %j', (source, line, col, piece) => {
+    const e = refused(source);
+    expect([e.line, e.col]).toEqual([line, col]);
+    expect(e.message).toContain(piece);
+  });
+
+  it('requires an axiom', () => {
+    expect(refused('F → FF').message).toContain('no axiom');
+  });
+});
+
+/** The module count at each generation, from symbol counts alone: an oracle that shares nothing
+ *  with the rewriter but the grammar. */
+function countsByRecurrence(g: Grammar, n: number): number[] {
+  let counts = new Map<string, number>();
+  for (const m of g.axiom) counts.set(m.symbol, (counts.get(m.symbol) ?? 0) + 1);
+  const totals = [g.axiom.length];
+  for (let i = 0; i < n; i++) {
+    const next = new Map<string, number>();
+    for (const [sym, c] of counts) {
+      const body = g.rules[sym]?.succ[0]!.body ?? [{ symbol: sym }];
+      for (const b of body) next.set(b.symbol, (next.get(b.symbol) ?? 0) + c);
+    }
+    counts = next;
+    totals.push([...counts.values()].reduce((a, b) => a + b, 0));
+  }
+  return totals;
+}
+
+describe('derivations', () => {
+  it('rewrites every module in parallel', () => {
+    const g = parseGrammar(FIG_1_24C);
+    expect(moduleText(derive(g, 1))).toBe('FF-[-F+F+F]+[+F-F-F]');
+    expect(derivations(g, 4).map((d) => d.length)).toEqual(countsByRecurrence(g, 4));
+  });
+
+  it.each(PRESETS.filter((p) => p.source).map((p) => [p.name, p] as const))('%s derives the count its grammar implies', (_name, p) => {
+    const params = p.design().stages[1]!.params;
+    const g = parseGrammar(String(params.grammar));
+    const n = params.n as number;
+    expect(derive(g, n, 1e7).length).toBe(countsByRecurrence(g, n).at(-1));
+  });
+
+  it('stops at the module cap', () => {
+    const g = parseGrammar(FIG_1_24C);
+    expect(() => derive(g, 4, 1000)).toThrow(ModuleCapError);
+  });
+});
+
+const OPTS: TurtleOptions = { delta: Math.PI / 2, step: 1, width: 1, thin: 0.5, stage: 's', cap: 1e6 };
+const ROOT: TreeNode = { id: 0, parent: null, pos: [0, 0, 0], radius: 1, order: 0, stage: 'seed', born: 0 };
+const BUD = { node: 0, frame: UPRIGHT, order: 0, vigor: 1 };
+
+function walk(text: string) {
+  const nodes: TreeNode[] = [ROOT];
+  const buds = interpret(parseGrammar(`ω: ${text}`).axiom, BUD, nodes, OPTS);
+  const at = (i: number) => nodes[i]!.pos.map((v) => Math.round(v * 1e9) / 1e9 + 0);
+  return { nodes, buds, at };
+}
+
+describe('interpret', () => {
+  it('draws F and turns left on +', () => {
+    const { nodes, at } = walk('F+F');
+    expect(nodes.map((n) => n.parent)).toEqual([null, 0, 1]);
+    expect(at(1)).toEqual([0, 1, 0]);
+    expect(at(2)).toEqual([-1, 1, 0]);
+    expect(nodes[2]!.born).toBe(2);
+    expect(nodes[2]!.module).toBe(2);
+  });
+
+  it('restores position, heading and order after a branch', () => {
+    const { nodes, at, buds } = walk('F[+F]F');
+    expect(nodes.map((n) => n.parent)).toEqual([null, 0, 1, 1]);
+    expect(nodes[2]!.order).toBe(1);
+    expect(at(3)).toEqual([0, 2, 0]);
+    expect(buds.map((b) => b.node)).toEqual([2, 3]);
+    expect(buds.map((b) => b.order)).toEqual([1, 0]);
+  });
+
+  it('starts a new line after f, and thins on !', () => {
+    const { nodes, at } = walk('Ff!F');
+    expect(nodes.map((n) => n.parent)).toEqual([null, 0, null, 2]);
+    expect(at(3)).toEqual([0, 3, 0]);
+    expect(nodes[3]!.radius).toBe(0.5);
+  });
+});

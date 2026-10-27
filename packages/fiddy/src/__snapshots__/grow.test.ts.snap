@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`presets > Fig. 1.24a grows, and its skeleton is unchanged 1`] = `"82934f7e"`;
+
+exports[`presets > Fig. 1.24b grows, and its skeleton is unchanged 1`] = `"04ed3d73"`;
+
+exports[`presets > Fig. 1.24c grows, and its skeleton is unchanged 1`] = `"430becef"`;
+
+exports[`presets > Fig. 1.24d grows, and its skeleton is unchanged 1`] = `"65ab1c69"`;
+
+exports[`presets > Fig. 1.24e grows, and its skeleton is unchanged 1`] = `"e375bc6d"`;
+
+exports[`presets > Fig. 1.24f grows, and its skeleton is unchanged 1`] = `"404a9d16"`;
+
+exports[`presets > Grafted grows, and its skeleton is unchanged 1`] = `"e73b0728"`;

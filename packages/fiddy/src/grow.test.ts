@@ -1,0 +1,77 @@
+import { describe, expect, it } from 'vitest';
+import { type Design, restack, sanitizeDesign, selectBuds, type Stage } from './design.js';
+import { grow, growSteps } from './grow.js';
+import { PRESETS } from './presets.js';
+import { skeletonHash } from './skeleton.js';
+
+const stage = (id: string, kind: string, params: Stage['params'] = {}, select?: Stage['input']['select']): Stage => ({
+  id,
+  kind,
+  params,
+  input: { from: [], ...(select ? { select } : {}) },
+});
+
+const design = (...stages: Stage[]): Design => ({ seed: 1, stages: restack(stages) });
+
+describe('growSteps', () => {
+  it('chains stages through their buds', () => {
+    const steps = growSteps(design(stage('seed', 'seed'), stage('a', 'lsystem', { grammar: 'ω: F[+F]F', n: 0 })));
+    const last = steps.at(-1)!;
+    if (!('skeleton' in last)) throw new Error('no skeleton');
+    expect(last.skeleton.nodes.map((n) => n.stage)).toEqual(['seed', 'a', 'a', 'a']);
+    expect(last.skeleton.nodes[1]!.parent).toBe(0);
+    expect(last.skeleton.buds.map((b) => b.node)).toEqual([2, 3]);
+  });
+
+  it('leaves earlier stages untouched when a later one is edited', () => {
+    const base = design(stage('seed', 'seed'), stage('a', 'lsystem', { n: 3 }), stage('b', 'lsystem', { n: 1 }));
+    const edited = { ...base, stages: base.stages.map((s) => (s.id === 'b' ? { ...s, params: { n: 2, delta: 40 } } : s)) };
+    const upTo = (d: Design) => grow(d).nodes.filter((n) => n.stage !== 'b');
+    expect(upTo(edited)).toEqual(upTo(base));
+  });
+
+  it('marks a stage that throws, and every stage after it unreached', () => {
+    const steps = growSteps(design(stage('seed', 'seed'), stage('a', 'lsystem', { grammar: 'F → FF' }), stage('b', 'lsystem')));
+    expect('error' in steps[1]!).toBe(true);
+    expect(steps[2]).toEqual({ stage: 'b', unreached: true });
+    expect(() => grow(design(stage('seed', 'seed'), stage('x', 'nope')))).toThrow('no stage kind');
+  });
+
+  it('passes the buds a selector leaves on, open', () => {
+    const d = design(
+      stage('seed', 'seed'),
+      stage('a', 'lsystem', { grammar: 'ω: F[+F]F', n: 0 }),
+      stage('b', 'lsystem', { grammar: 'ω: F', n: 0 }, { minOrder: 1 }),
+    );
+    const s = grow(d);
+    expect(s.nodes.filter((n) => n.stage === 'b').map((n) => n.parent)).toEqual([2]);
+    expect(s.buds.map((b) => b.node).sort()).toEqual([3, 4]);
+  });
+});
+
+describe('selectBuds', () => {
+  it('chooses by order and by height through the skeleton', () => {
+    const s = grow(design(stage('seed', 'seed'), stage('a', 'lsystem', { grammar: 'ω: F[+F]F[-F]F', n: 0 })));
+    expect(selectBuds(s, { minOrder: 1 }).chosen.length).toBe(2);
+    expect(selectBuds(s, { minHeight: 0.9 }).chosen.map((b) => b.order)).toEqual([1, 0]);
+    expect(selectBuds(s, { minHeight: 0.99 }).chosen.map((b) => b.order)).toEqual([0]);
+  });
+});
+
+describe('sanitizeDesign', () => {
+  it('keeps a usable design and rewires it as a stack', () => {
+    const d = sanitizeDesign({ seed: 3, stages: [{ id: 'a', kind: 'seed', params: { x: 1, bad: {} } }, { id: 'b', kind: 'lsystem', params: {} }, 7] });
+    expect(d?.stages.map((s) => [s.id, s.input.from])).toEqual([['a', []], ['b', ['a']]]);
+    expect(d?.stages[0]!.params).toEqual({ x: 1 });
+    expect(sanitizeDesign({ stages: [] })).toBeNull();
+  });
+});
+
+describe('presets', () => {
+  it.each(PRESETS.map((p) => [p.name, p] as const))('%s grows, and its skeleton is unchanged', (_name, preset) => {
+    const d = preset.design();
+    const skeleton = grow(d);
+    expect(skeleton.nodes.length).toBeGreaterThan(10);
+    expect(skeletonHash(skeleton)).toMatchSnapshot();
+  });
+});
