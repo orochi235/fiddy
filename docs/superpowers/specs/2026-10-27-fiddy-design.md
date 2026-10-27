@@ -1,8 +1,7 @@
 # fiddy design
 
-**Status: designed 2026-10-27, nothing built.** This spec covers the whole roadmap; the first build is
-roadmap pieces 1 and 2 plus the weasel prerequisite. Everything past piece 2 is unbuilt and gets its
-own spec when its turn comes.
+**Status: pieces 0–2 built 2026-10-27; pieces 3–10 unbuilt**, each to get its own spec when its turn
+comes. The lab waits on a weasel release for its vertical rack (see Lab).
 
 fiddy generates trees, the arboreal kind: a JS library (`fiddy` on npm, free as of 2026-10-27) and a
 labkit lab for designing them. This document is for whoever builds or extends it, and answers what the
@@ -26,9 +25,9 @@ timeline (2026-10-27).
 
 | # | Piece | Builds on | Status |
 |---|---|---|---|
-| 0 | weasel: `direction: 'down'` on the diagram `rack` look | — | unbuilt, first build |
-| 1 | Foundation: skeleton, buds, stages, seeded streams, blits timing, 2D renderer, lab shell | — | unbuilt, first build |
-| 2 | L-system, deterministic, with grammar workbench | 1 | unbuilt, first build |
+| 0 | weasel: `direction: 'down'` on the diagram `rack` look | — | built, merged in weasel; unreleased |
+| 1 | Foundation: skeleton, buds, stages, seeded streams, blits timing, 2D renderer, lab shell | — | built |
+| 2 | L-system, deterministic, with grammar workbench | 1 | built |
 | 3 | Stochastic rules | 2 | unbuilt |
 | 4 | Parametric rules: numbers, conditions, expressions | 3 | unbuilt |
 | 5 | Context-sensitive rules | 4 | unbuilt |
@@ -131,26 +130,32 @@ grammar and `n`; an animated angle or step length reruns only the turtle.
 
 blits is in from the start (2026-10-27):
 
-- **Growth playback.** Pipeline order is the score: each stage a voice, anchored to start at the end of
-  the one before it. A `grown` channel goes from 0 to 1 per stage and reveals that stage's nodes in
-  `born` order. Turtle playback is the same reveal in module order.
+- **Growth playback.** Pipeline order is the score: each stage grows for `time.grow` seconds after the
+  one before it, instant kinds (the seed) taking none. One looping voice writes a `grow.<stage>`
+  channel per stage, 0 to 1, and holds 1 once the stage is done, so the finished tree stays up for
+  the rest of the loop. The tree reveals a stage's nodes by `born` (arc length, so growth spreads
+  outward) or, in turtle mode, by module order.
+- **Start times are absolute, not blits anchors** (2026-10-27): `Mix.project` cannot read back through
+  anchored voices without a history tape, and a stack's starts are a sum of durations anyway.
 - **Animated params.** Any number param can carry a `motion`. Each motion is a looping voice on that
   param's channel, set up as agnew's `animate.ts` does it.
-- **Scrubbing** reads the mix at any time through blits `project` and `seek`, so going backward is exact.
+- **Scrubbing** reaches an earlier time by wrapping forward to the same point in a later pass of the
+  loop, as agnew does, so going backward is exact without a history tape.
 
 ## Lab
 
-Layout (2026-10-27, mockup B), on labkit's `WorkspaceGrid`:
+Layout (2026-10-27, mockup B), a CSS grid inside the one instrument's body:
 
 | Area | Contents |
 |---|---|
-| Left column | The pipeline: `EffectEditor`, `look="rack"`, `direction: 'down'`, `showPreviews`. Each stage box shows a thumbnail of the tree after that stage, and a `~` on any animated param. |
+| Left column | The preset menu, then the pipeline: `EffectEditor`, `look="rack"`, `direction: 'down'`, `showPreviews`. Each stage box shows a thumbnail of the tree after that stage, and a `~` on any animated param. |
 | Center | The tree, 2D. The selected stage's branches are highlighted. |
 | Right | The inspector for the selected stage: its params panel, and for an L-system the grammar editor, rule pictures, generation strip, and linked string. |
 | Bottom | The transport: the blits score drawn as one band per stage and a curve per motion, with the playhead. |
 
-**The pipeline adapter** (`apps/lab/src/pipeline/`) turns a `Design` into an `EffectDoc` and back, and
-registers one `EffectEvaluator` per stage kind. The port type is `tree` (a skeleton and its open buds).
+**The pipeline adapter** (`apps/lab/src/pipeline/`) turns a `Design` into an `EffectDoc`, and reads a
+reorder or a deletion back out of the doc the editor hands over. The lab builds the `EffectRun` itself
+from `growSteps`, previews included, rather than registering evaluators with the diagram's runner. The port type is `tree` (a skeleton and its open buds).
 A stage's `select` shows on its box as a param. Call `registerCanvasFont('sans-serif')` once at startup,
 or every diagram label renders blank.
 
@@ -179,7 +184,8 @@ Library, vitest:
 
 - Every ABOP preset parses, derives the exact module count at its `n`, and matches a stored skeleton
   hash.
-- Editing one stage leaves every other stage's nodes byte-identical.
+- Editing a stage leaves the nodes of every stage before it identical, and a stage's random stream
+  depends only on the seed and its own id.
 - `animate(design).at(t)` is the same design for the same `t`, whether `t` is reached forward or back.
 
 Lab:
@@ -187,4 +193,9 @@ Lab:
 - `npm run smoke` loads the built lab headless, visits every preset, and fails on any console error.
 - `npm run shots` screenshots every preset and posts them to the wall under the `fiddy` zone.
 
-The repo is enlisted on the onto fleet, and the full suite runs there after each merge.
+The library suite is enlisted on the onto fleet (`.onto/tests`). Typecheck runs there too, as a
+detached `onto run`, since this machine refuses `tsc`.
+
+The weasel packages are pinned to an exact npm version (2026-10-27). Linking the local checkout with
+`file:` was tried and dropped: that checkout's dists are built piecemeal, so `diagram` from today needed
+exports the older `core` and `geom` dists lacked.
