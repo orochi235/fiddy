@@ -11,8 +11,8 @@
     "build": "npm run build -w fiddy && npm run build -w @fiddy/lab",
     "test": "npm test --workspaces --if-present --",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "smoke": "npm run build && node scripts/smoke.mjs",
-    "shots": "npm run build && node scripts/shots.mjs"
+    "smoke": "npm run bundle -w @fiddy/lab && node scripts/smoke.mjs",
+    "shots": "npm run bundle -w @fiddy/lab && node scripts/shots.mjs"
   },
   "devDependencies": {
     "playwright-core": "^1.63.0"
