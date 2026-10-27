@@ -1,0 +1,32 @@
+{
+  "name": "@fiddy/lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@weasel-js/animator": "file:/Users/mike/src/weasel/packages/animator",
+    "@weasel-js/core": "file:/Users/mike/src/weasel/packages/core",
+    "@weasel-js/diagram": "file:/Users/mike/src/weasel/packages/diagram",
+    "@weasel-js/font": "file:/Users/mike/src/weasel/packages/font",
+    "@weasel-js/labkit": "file:/Users/mike/src/weasel/packages/labkit",
+    "@weasel-js/theme": "file:/Users/mike/src/weasel/packages/theme",
+    "fiddy": "^0.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}
