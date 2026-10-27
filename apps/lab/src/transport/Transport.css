@@ -1,0 +1,34 @@
+.fd-transport {
+  display: grid;
+  gap: 4px;
+  padding: 6px 12px 8px;
+  border-top: 1px solid var(--fd-line);
+  background: var(--fd-pane);
+}
+
+.fd-transport-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fd-transport-play {
+  width: 2.2em;
+  border: 1px solid var(--fd-line);
+  border-radius: 4px;
+  background: var(--fd-ground);
+  color: var(--fd-ink);
+  cursor: pointer;
+}
+
+.fd-transport-scrub {
+  flex: 1;
+}
+
+/* Last in the row and sized for its widest value, so a changing readout moves nothing. */
+.fd-transport-time {
+  min-width: 15ch;
+  text-align: end;
+  color: var(--fd-muted);
+  font-variant-numeric: tabular-nums;
+}

@@ -18,7 +18,7 @@ export { KINDS, kindOf, paramsOf } from './kinds/index.js';
 export { lsystemParams } from './kinds/lsystem.js';
 export type { ParamSpec, StageContext, StageKind } from './kinds/types.js';
 export { generationsOf, grammarOf } from './lsystem/cache.js';
-export { parseGrammar } from './lsystem/parse.js';
+export { parseGrammar, takeDefines } from './lsystem/parse.js';
 export { DEFAULT_MODULE_CAP, derivations, derive, moduleText } from './lsystem/rewrite.js';
 export { interpret, type TurtleOptions } from './lsystem/turtle.js';
 export { type Grammar, type Module, ModuleCapError, ParseError, type Rule } from './lsystem/types.js';

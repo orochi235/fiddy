@@ -10,12 +10,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@weasel-js/animator": "file:/Users/mike/src/weasel/packages/animator",
-    "@weasel-js/core": "file:/Users/mike/src/weasel/packages/core",
-    "@weasel-js/diagram": "file:/Users/mike/src/weasel/packages/diagram",
-    "@weasel-js/font": "file:/Users/mike/src/weasel/packages/font",
-    "@weasel-js/labkit": "file:/Users/mike/src/weasel/packages/labkit",
-    "@weasel-js/theme": "file:/Users/mike/src/weasel/packages/theme",
+    "@weasel-js/animator": "1.13.0",
+    "@weasel-js/core": "1.13.0",
+    "@weasel-js/diagram": "1.13.0",
+    "@weasel-js/font": "1.13.0",
+    "@weasel-js/labkit": "1.13.0",
+    "@weasel-js/theme": "1.13.0",
+    "@weasel-js/ui": "1.13.0",
     "fiddy": "^0.0.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

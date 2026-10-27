@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { UPRIGHT } from '../frame.js';
 import type { TreeNode } from '../skeleton.js';
 import { PRESETS } from '../presets.js';
-import { parseGrammar } from './parse.js';
+import { parseGrammar, takeDefines } from './parse.js';
 import { derivations, derive, moduleText } from './rewrite.js';
 import { interpret, type TurtleOptions } from './turtle.js';
 import { type Grammar, ModuleCapError, ParseError } from './types.js';
@@ -45,6 +45,10 @@ describe('parseGrammar', () => {
     const e = refused(source);
     expect([e.line, e.col]).toEqual([line, col]);
     expect(e.message).toContain(piece);
+  });
+
+  it('takes defines out of a pasted grammar', () => {
+    expect(takeDefines(FIG_1_24C)).toEqual({ source: 'ω: F\np1: F → FF-[-F+F+F]+[+F-F-F]', defines: { n: 4, delta: 22.5 } });
   });
 
   it('requires an axiom', () => {

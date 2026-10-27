@@ -1,0 +1,47 @@
+.fd-workspace {
+  display: grid;
+  grid-template:
+    'pipe tree inspector' minmax(0, 1fr)
+    'time time time' auto / 240px minmax(0, 1fr) 340px;
+  width: 100%;
+  height: 100%;
+  background: var(--fd-ground);
+  color: var(--fd-ink);
+}
+
+.fd-workspace-pipe {
+  grid-area: pipe;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--fd-line);
+  background: var(--fd-pane);
+}
+
+.fd-workspace-tree {
+  grid-area: tree;
+  min-width: 0;
+  min-height: 0;
+}
+
+.fd-workspace-inspector {
+  grid-area: inspector;
+  min-height: 0;
+}
+
+.fd-workspace-time {
+  grid-area: time;
+}
+
+.fd-preset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--fd-line);
+  color: var(--fd-muted);
+}
+
+.fd-preset select {
+  flex: 1;
+}

@@ -1,0 +1,27 @@
+/* The same values as the canvas colors in `colors.ts`. */
+:root {
+  --fd-ground: #12161c;
+  --fd-pane: #181d24;
+  --fd-line: #2c3440;
+  --fd-ink: #cfd6e0;
+  --fd-muted: #8a96a8;
+  --fd-accent: #e0b050;
+  --fd-hover: #7fd0ff;
+  --fd-band: #3d5878;
+  --fd-error: #ff7a6b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: var(--fd-ground);
+  color: var(--fd-ink);
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+}

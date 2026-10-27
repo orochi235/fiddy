@@ -1,0 +1,45 @@
+.fd-num-row {
+  display: grid;
+  grid-template-columns: 5.5em 1fr 5em 1em 1.8em;
+  align-items: center;
+  gap: 6px;
+}
+
+.fd-num-label {
+  color: var(--fd-muted);
+}
+
+.fd-num-box {
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.fd-num-suffix {
+  color: var(--fd-muted);
+}
+
+.fd-num-motion {
+  border: 1px solid var(--fd-line);
+  border-radius: 3px;
+  background: none;
+  color: var(--fd-muted);
+  cursor: pointer;
+}
+
+.fd-num-motion--on {
+  border-color: var(--fd-accent);
+  color: var(--fd-accent);
+}
+
+.fd-num-wave {
+  display: flex;
+  gap: 12px;
+  margin: 4px 0 0 calc(5.5em + 6px);
+  color: var(--fd-muted);
+}
+
+.fd-num-wave input {
+  width: 5em;
+  font-variant-numeric: tabular-nums;
+}

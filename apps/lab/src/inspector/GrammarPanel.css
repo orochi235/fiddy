@@ -1,0 +1,106 @@
+.fd-grammar-text {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 6px;
+  border: 1px solid var(--fd-line);
+  border-radius: 4px;
+  background: var(--fd-ground);
+  color: var(--fd-ink);
+  font: 13px/1.5 ui-monospace, monospace;
+}
+
+.fd-grammar-error {
+  margin: 6px 0;
+  color: var(--fd-error);
+}
+
+.fd-grammar-error p {
+  margin: 2px 0;
+}
+
+.fd-grammar-caret {
+  margin: 0;
+  font: 12px/1.4 ui-monospace, monospace;
+}
+
+.fd-grammar-section h4 {
+  margin: 12px 0 6px;
+  color: var(--fd-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fd-thumb {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 3px;
+  background: var(--fd-ground);
+}
+
+.fd-thumb--big {
+  background: repeating-linear-gradient(45deg, var(--fd-ground) 0 4px, var(--fd-pane) 4px 8px);
+}
+
+.fd-rules {
+  display: grid;
+  gap: 6px;
+}
+
+.fd-rule {
+  display: grid;
+  grid-template-columns: 1.2em 1.2em 56px 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.fd-rule-pred {
+  font: 15px ui-monospace, monospace;
+  text-align: end;
+}
+
+.fd-rule-arrow {
+  color: var(--fd-muted);
+}
+
+.fd-rule-text {
+  overflow-wrap: anywhere;
+  color: var(--fd-muted);
+  font-size: 11px;
+}
+
+.fd-gens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fd-gen {
+  margin: 0;
+}
+
+.fd-gen figcaption {
+  color: var(--fd-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fd-string {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  font: 12px/1.5 ui-monospace, monospace;
+  overflow-wrap: anywhere;
+}
+
+.fd-mod--lit {
+  background: var(--fd-hover);
+  color: var(--fd-ground);
+}
+
+.fd-string-more {
+  color: var(--fd-muted);
+}

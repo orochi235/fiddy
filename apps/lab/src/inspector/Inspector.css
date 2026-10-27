@@ -1,0 +1,81 @@
+.fd-inspector {
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-left: 1px solid var(--fd-line);
+  background: var(--fd-pane);
+}
+
+.fd-inspector--empty {
+  color: var(--fd-muted);
+}
+
+.fd-inspector-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.fd-inspector-head h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.fd-inspector-head code {
+  color: var(--fd-muted);
+}
+
+.fd-inspector-section {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.fd-inspector-section > h4 {
+  margin: 0;
+  color: var(--fd-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fd-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+}
+
+.fd-select label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fd-muted);
+}
+
+.fd-select input {
+  width: 4.5em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fd-inspector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.fd-inspector-actions button {
+  padding: 4px 8px;
+  border: 1px solid var(--fd-line);
+  border-radius: 4px;
+  background: var(--fd-ground);
+  color: var(--fd-ink);
+  cursor: pointer;
+}
+
+.fd-inspector-actions .fd-danger {
+  margin-inline-start: auto;
+  color: var(--fd-error);
+}

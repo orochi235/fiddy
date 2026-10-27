@@ -13,6 +13,24 @@ const LATER = {
   several: 'a second rule for one symbol makes the grammar stochastic, which arrives in roadmap piece 3',
 };
 
+/** The `n = …` and `δ = …` defines in `source`, and the source with them taken out and any line
+ *  they leave empty dropped: how a grammar pasted from the book becomes a grammar and params. */
+export function takeDefines(source: string): { source: string; defines: Grammar['defines'] } {
+  const defines: Grammar['defines'] = {};
+  const lines: string[] = [];
+  for (const line of source.split('\n')) {
+    let found = false;
+    for (const m of line.matchAll(DEFINE)) {
+      found = true;
+      if (m[1]!.toLowerCase() === 'n') defines.n = Number(m[2]);
+      else defines.delta = Number(m[2]);
+    }
+    const rest = line.replace(DEFINE, '').trimEnd();
+    if (!found || rest.trim() !== '') lines.push(found ? rest.trim() : line);
+  }
+  return { source: lines.join('\n'), defines };
+}
+
 /** The modules of `text`, one per non-space character; `col` is where `text` starts on its line. */
 function modules(text: string, line: number, col: number): Module[] {
   const out: Module[] = [];
