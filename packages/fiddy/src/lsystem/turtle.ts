@@ -14,6 +14,8 @@ export interface TurtleOptions {
   stage: string;
   /** Throws past this many nodes. */
   cap: number;
+  /** Written on every node as `bud`, when the stage derives a string per bud. */
+  bud?: number;
 }
 
 interface State {
@@ -44,7 +46,9 @@ export function interpret(modules: readonly Module[], bud: Bud, nodes: TreeNode[
   const place = (parent: number | null, module: number) => {
     const id = nodes.length;
     if (id - firstNew >= o.cap) throw new Error(`the turtle passed ${o.cap.toLocaleString('en-US')} nodes`);
-    nodes.push({ id, parent, pos: s.frame.pos, radius: s.width, order: s.order, stage: o.stage, born: s.dist, module });
+    const node: TreeNode = { id, parent, pos: s.frame.pos, radius: s.width, order: s.order, stage: o.stage, born: s.dist, module };
+    if (o.bud !== undefined) node.bud = o.bud;
+    nodes.push(node);
     if (parent !== null) hasChild.add(parent);
     frames.set(id, { frame: s.frame, order: s.order });
     s = { ...s, at: id };

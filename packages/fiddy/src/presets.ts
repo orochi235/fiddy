@@ -18,7 +18,7 @@ const one = (grammar: string, n: number, delta: number) => (): Design => ({
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Fig. 1.24, and designs built on them. */
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, and designs built on them. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -27,6 +27,11 @@ export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24e', source: 'ABOP Fig. 1.24e', design: one('ω: X\np1: X → F[+X][-X]FX\np2: F → FF', 7, 25.7) },
   { name: 'Fig. 1.24f', source: 'ABOP Fig. 1.24f', design: one('ω: X\np1: X → F-[[X]+X]+F[+FX]-X\np2: F → FF', 5, 22.5) },
   {
+    name: 'Fig. 1.27',
+    source: 'ABOP Fig. 1.27',
+    design: one('ω: F\np1: F (.33) → F[+F]F[-F]F\np2: F (.33) → F[+F]F\np3: F (.34) → F[-F]F', 5, 25.7),
+  },
+  {
     name: 'Grafted',
     design: () => ({
       seed: 1,
@@ -34,6 +39,17 @@ export const PRESETS: readonly Preset[] = [
         seed(),
         lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 3, 30, { step: 4, width: 2 }),
         lsystem('crown', 'ω: X\np1: X → F[+X][-X]FX\np2: F → FF', 4, 25.7, { width: 0.6 }, { minOrder: 2 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Grafted, wild',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        seed(),
+        lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 3, 30, { step: 4, width: 2 }),
+        lsystem('crown', 'ω: X\np1: X (.5) → F[+X][-X]FX\np2: X (.3) → F[+X]FX\np3: X (.2) → F[-X]FX\np4: F → FF', 4, 25.7, { width: 0.6 }, { minOrder: 2 }),
       ]),
     }),
   },

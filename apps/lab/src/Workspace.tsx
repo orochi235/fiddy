@@ -116,6 +116,7 @@ export function Workspace() {
       <div className="fd-workspace-inspector">
         <Inspector
           stage={stage}
+          seed={design.seed}
           hover={hover}
           onHover={setHover}
           onStage={(next) => setState((s) => editStage(s, next.id, () => next))}

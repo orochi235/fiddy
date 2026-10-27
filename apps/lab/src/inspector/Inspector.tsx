@@ -6,6 +6,8 @@ import './Inspector.css';
 
 interface Props {
   stage: Stage | null;
+  /** The design's seed, which a stochastic grammar's views derive from. */
+  seed: number;
   hover: Hover | null;
   onHover: (hover: Hover | null) => void;
   onStage: (next: Stage) => void;
@@ -21,7 +23,7 @@ const SELECTOR_FIELDS: readonly { key: keyof Selector; label: string; step: numb
 ];
 
 /** The selected stage: which buds it grows from, its params, and for an L-system its grammar. */
-export function Inspector({ stage, hover, onHover, onStage, onAdd, onRemove }: Props) {
+export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemove }: Props) {
   if (!stage) return <aside className="fd-inspector fd-inspector--empty">Select a stage in the pipeline.</aside>;
   const kind = KINDS[stage.kind];
   const values = paramsOf(stage);
@@ -85,7 +87,7 @@ export function Inspector({ stage, hover, onHover, onStage, onAdd, onRemove }: P
       {stage.kind === 'lsystem' && (
         <section className="fd-inspector-section">
           <h4>Grammar</h4>
-          <GrammarPanel stage={stage.id} {...grammarProps(values)} hover={hover} onHover={onHover} onText={setGrammar} />
+          <GrammarPanel stage={stage.id} seed={seed} {...grammarProps(values)} hover={hover} onHover={onHover} onText={setGrammar} />
         </section>
       )}
 

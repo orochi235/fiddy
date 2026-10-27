@@ -12,6 +12,8 @@ export interface Reveal {
 export interface Hover {
   stage: string;
   module: number;
+  /** Which bud's string `module` indexes, for a stochastic stage; absent when buds share one. */
+  bud?: number;
 }
 
 /** World to screen: `x * scale + ox`, `oy - y * scale` (world y points up). */
@@ -92,7 +94,7 @@ export function drawSkeleton(ctx: CanvasRenderingContext2D | OffscreenCanvasRend
     if (k <= 0) continue;
     const x = p.pos[0] + (n.pos[0] - p.pos[0]) * k;
     const y = p.pos[1] + (n.pos[1] - p.pos[1]) * k;
-    const hot = o.hover && n.stage === o.hover.stage && n.module === o.hover.module;
+    const hot = o.hover && n.stage === o.hover.stage && n.module === o.hover.module && n.bud === o.hover.bud;
     ctx.strokeStyle = hot ? HOVER : o.selected == null ? INK : n.stage === o.selected ? ACCENT : DIM;
     ctx.lineWidth = hot ? Math.max(3, n.radius * fit.scale * weight) : Math.min(14, Math.max(0.5, n.radius * fit.scale * weight));
     ctx.beginPath();

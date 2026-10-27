@@ -52,7 +52,7 @@
 
 .fd-rule {
   display: grid;
-  grid-template-columns: 1.2em 1.2em 56px 1fr;
+  grid-template-columns: 1.2em 2.4em 56px 1fr;
   align-items: center;
   gap: 6px;
 }
@@ -63,7 +63,14 @@
 }
 
 .fd-rule-arrow {
+  display: grid;
+  justify-items: center;
   color: var(--fd-muted);
+}
+
+.fd-rule-prob {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
 }
 
 .fd-rule-text {

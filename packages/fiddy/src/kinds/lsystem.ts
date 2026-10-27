@@ -1,7 +1,8 @@
 import type { ParamValue } from '../design.js';
-import { generationsOf } from '../lsystem/cache.js';
+import { generationsOf, grammarOf } from '../lsystem/cache.js';
 import { DEFAULT_MODULE_CAP } from '../lsystem/rewrite.js';
 import { interpret } from '../lsystem/turtle.js';
+import type { Rng } from '../random.js';
 import type { Bud } from '../skeleton.js';
 import type { StageKind } from './types.js';
 
@@ -18,6 +19,13 @@ export const lsystemParams = (p: Record<string, ParamValue>) => ({
   cap: Math.round(p.cap as number),
 });
 
+/** The seed each of `count` buds derives its string from: for a stochastic grammar, one draw per
+ *  bud from the stage's stream, in bud order; otherwise 0 for all, and they share one string. */
+export function derivationSeeds(grammar: string, rng: Rng, count: number): number[] {
+  if (!grammarOf(grammar).stochastic) return new Array<number>(count).fill(0);
+  return Array.from({ length: count }, () => Math.floor(rng() * 2 ** 32));
+}
+
 /** A grammar rewritten `n` times, then drawn by a turtle from each selected bud. */
 export const lsystem: StageKind = {
   kind: 'lsystem',
@@ -31,12 +39,16 @@ export const lsystem: StageKind = {
     { key: 'thin', label: 'Thin (!)', type: 'number', default: 0.7, min: 0.05, max: 1, step: 0.01 },
     { key: 'cap', label: 'Module cap', type: 'number', default: DEFAULT_MODULE_CAP, min: 1000, max: 2_000_000, step: 1000 },
   ],
-  apply({ stage, params, buds, nodes }) {
+  apply({ stage, params, buds, nodes, rng }) {
     const p = lsystemParams(params);
-    const modules = generationsOf(p.grammar, p.n, p.cap).at(-1)!;
+    const stochastic = grammarOf(p.grammar).stochastic;
+    const seeds = derivationSeeds(p.grammar, rng, buds.length);
     const out: Bud[] = [];
     const opts = { delta: p.delta * RAD, step: p.step, width: p.width, thin: p.thin, stage: stage.id, cap: p.cap };
-    for (const bud of buds) out.push(...interpret(modules, bud, nodes, opts));
+    buds.forEach((bud, i) => {
+      const modules = generationsOf(p.grammar, p.n, p.cap, seeds[i]).at(-1)!;
+      out.push(...interpret(modules, bud, nodes, stochastic ? { ...opts, bud: i } : opts));
+    });
     return out;
   },
 };

@@ -49,6 +49,28 @@ describe('growSteps', () => {
   });
 });
 
+describe('a stochastic stage', () => {
+  const wild = (seed: number, n = 3) =>
+    ({ seed, stages: restack([stage('seed', 'seed'), stage('trunk', 'lsystem', { grammar: 'ω: F[+F][-F]', n: 0 }), stage('crown', 'lsystem', { grammar: 'ω: F\nF → F[+F]F\nF → F[-F]F\nF → F', n }, { minOrder: 1 })]) }) as Design;
+  const crown = (d: Design) => grow(d).nodes.filter((n) => n.stage === 'crown');
+
+  it('derives a string per bud, and tags each node with its bud', () => {
+    const nodes = crown(wild(1));
+    expect(new Set(nodes.map((n) => n.bud))).toEqual(new Set([0, 1]));
+    const shape = (bud: number) => nodes.filter((n) => n.bud === bud).map((n) => n.module).join();
+    expect(shape(0)).not.toBe(shape(1));
+  });
+
+  it('grows the same from the same seed, and differently from another', () => {
+    expect(crown(wild(1))).toEqual(crown(wild(1)));
+    expect(crown(wild(2))).not.toEqual(crown(wild(1)));
+  });
+
+  it('leaves the nodes of a deterministic stage untagged', () => {
+    expect(grow(wild(1)).nodes.filter((n) => n.stage === 'trunk').every((n) => n.bud === undefined)).toBe(true);
+  });
+});
+
 describe('selectBuds', () => {
   it('chooses by order and by height through the skeleton', () => {
     const s = grow(design(stage('seed', 'seed'), stage('a', 'lsystem', { grammar: 'ω: F[+F]F[-F]F', n: 0 })));

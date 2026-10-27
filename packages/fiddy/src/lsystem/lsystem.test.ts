@@ -36,15 +36,40 @@ describe('parseGrammar', () => {
   });
 
   it.each([
-    ['ω: F\np1: F (0.5) → F[+F]', 2, 7, 'piece 3'],
     ['ω: A(1)', 1, 5, 'piece 4'],
     ['ω: A\np1: A : t > 1 → F', 2, 7, 'piece 4'],
     ['ω: A\np1: B < A → F', 2, 7, 'piece 5'],
-    ['ω: F\nF → FF\nF → F', 3, 1, 'piece 3'],
   ])('refuses later-piece syntax with its position: %j', (source, line, col, piece) => {
     const e = refused(source);
     expect([e.line, e.col]).toEqual([line, col]);
     expect(e.message).toContain(piece);
+  });
+
+  it('reads several rules for one symbol as weighted alternatives', () => {
+    const g = parseGrammar('ω: F\np1: F (.33) → F[+F]F\np2: F (.33) -> F[-F]F\np3: F (.34) → F');
+    expect(g.stochastic).toBe(true);
+    expect(g.rules.F!.succ.map((a) => [a.prob, moduleText(a.body)])).toEqual([
+      [0.33, 'F[+F]F'],
+      [0.33, 'F[-F]F'],
+      [0.34, 'F'],
+    ]);
+  });
+
+  it('splits what written probabilities leave among the unwritten, evenly', () => {
+    const g = parseGrammar('ω: F\nF (.5) → FF\nF → F[+F]\nF → F[-F]');
+    expect(g.rules.F!.succ.map((a) => a.prob)).toEqual([0.5, 0.25, 0.25]);
+    expect(parseGrammar('ω: F\nF → FF\nF → F').rules.F!.succ.map((a) => a.prob)).toEqual([0.5, 0.5]);
+  });
+
+  it('leaves a deterministic grammar without probabilities', () => {
+    const g = parseGrammar(FIG_1_24C);
+    expect(g.stochastic).toBe(false);
+    expect(g.rules.F!.succ[0]!.prob).toBeUndefined();
+  });
+
+  it('refuses probabilities past 1', () => {
+    expect(refused('ω: F\nF (.7) → FF\nF (.7) → F').message).toContain('more than 1');
+    expect(refused('ω: F\nF (1.5) → FF').message).toContain('from 0 to 1');
   });
 
   it('takes defines out of a pasted grammar', () => {
@@ -81,7 +106,8 @@ describe('derivations', () => {
     expect(derivations(g, 4).map((d) => d.length)).toEqual(countsByRecurrence(g, 4));
   });
 
-  it.each(PRESETS.filter((p) => p.source).map((p) => [p.name, p] as const))('%s derives the count its grammar implies', (_name, p) => {
+  const fixed = PRESETS.filter((p) => p.source && !parseGrammar(String(p.design().stages[1]!.params.grammar)).stochastic);
+  it.each(fixed.map((p) => [p.name, p] as const))('%s derives the count its grammar implies', (_name, p) => {
     const params = p.design().stages[1]!.params;
     const g = parseGrammar(String(params.grammar));
     const n = params.n as number;
@@ -91,6 +117,35 @@ describe('derivations', () => {
   it('stops at the module cap', () => {
     const g = parseGrammar(FIG_1_24C);
     expect(() => derive(g, 4, 1000)).toThrow(ModuleCapError);
+  });
+});
+
+describe('stochastic derivations', () => {
+  const g = parseGrammar('ω: F\nF (.5) → F[+F]F\nF (.3) → F[-F]F\nF (.2) → F');
+
+  it('derives the same string from the same seed, and a different one from another', () => {
+    expect(moduleText(derive(g, 4, undefined, 7))).toBe(moduleText(derive(g, 4, undefined, 7)));
+    const strings = new Set([1, 2, 3, 4, 5].map((seed) => moduleText(derive(g, 4, undefined, seed))));
+    expect(strings.size).toBeGreaterThan(1);
+  });
+
+  it('keeps the earlier generations when n is raised', () => {
+    const short = derivations(g, 3, undefined, 11).map(moduleText);
+    const long = derivations(g, 5, undefined, 11).map(moduleText);
+    expect(long.slice(0, 4)).toEqual(short);
+  });
+
+  it('chooses each alternative about as often as its probability', () => {
+    const one = parseGrammar('ω: A\nA (.6) → B\nA (.25) → C');
+    const counts: Record<string, number> = {};
+    for (let seed = 0; seed < 4000; seed++) {
+      const s = moduleText(derive(one, 1, undefined, seed));
+      counts[s] = (counts[s] ?? 0) + 1;
+    }
+    expect(counts.B! / 4000).toBeCloseTo(0.6, 1);
+    expect(counts.C! / 4000).toBeCloseTo(0.25, 1);
+    // What the written probabilities leave is the chance A stays A.
+    expect(counts.A! / 4000).toBeCloseTo(0.15, 1);
   });
 });
 

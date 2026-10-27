@@ -1,6 +1,6 @@
 # fiddy design
 
-**Status: pieces 0–2 built 2026-10-27; pieces 3–10 unbuilt**, each to get its own spec when its turn
+**Status: pieces 0–3 built 2026-10-27; pieces 4–10 unbuilt**, each to get its own spec when its turn
 comes. The lab waits on a weasel release for its vertical rack (see Lab).
 
 fiddy generates trees, the arboreal kind: a JS library (`fiddy` on npm, free as of 2026-10-27) and a
@@ -28,7 +28,7 @@ timeline (2026-10-27).
 | 0 | weasel: `direction: 'down'` on the diagram `rack` look | — | built, merged in weasel; unreleased |
 | 1 | Foundation: skeleton, buds, stages, seeded streams, blits timing, 2D renderer, lab shell | — | built |
 | 2 | L-system, deterministic, with grammar workbench | 1 | built |
-| 3 | Stochastic rules | 2 | unbuilt |
+| 3 | Stochastic rules | 2 | built |
 | 4 | Parametric rules: numbers, conditions, expressions | 3 | unbuilt |
 | 5 | Context-sensitive rules | 4 | unbuilt |
 | 6 | Recursive parametric generator (Weber–Penn style) | 1 | unbuilt |
@@ -113,8 +113,22 @@ interface Rule {
 }
 ```
 
-The first build evaluates only deterministic rules. Syntax from a later piece gets an error at its
-position naming the piece that adds it.
+Syntax from an unbuilt piece gets an error at its position naming the piece that adds it.
+
+**Stochastic rules** (piece 3, 2026-10-27). Several rules for one symbol are alternatives, each
+optionally weighted as `F (.33) → …`, the probability ABOP prints over the arrow:
+
+- Unweighted alternatives split what the weighted ones leave, evenly; with none weighted, all are equal.
+  Weights past 1 are a parse error.
+- When every alternative is weighted and they sum short of 1, the rest is the chance the module stays
+  as it is.
+- Each bud a stage grows from derives its own string, from a seed drawn from the stage's stream in bud
+  order, so a crown on many buds varies from branch to branch. A deterministic grammar draws nothing and
+  every bud shares one string.
+- Choices are drawn in string order, generation by generation, so raising `n` keeps the earlier
+  generations as they were.
+- A stochastic stage's nodes carry `bud`, which bud's string their `module` indexes. The lab's grammar
+  views show the first bud's string, and hover links only within it.
 
 **The rewriter** works on an array of modules, never a JS string. It stops at a module cap (200,000 by
 default, adjustable); hitting the cap is a stage error.

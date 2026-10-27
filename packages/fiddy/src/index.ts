@@ -15,7 +15,7 @@ export {
 export { type Frame, UPRIGHT } from './frame.js';
 export { grow, growSteps, type StageResult } from './grow.js';
 export { KINDS, kindOf, paramsOf } from './kinds/index.js';
-export { lsystemParams } from './kinds/lsystem.js';
+export { derivationSeeds, lsystemParams } from './kinds/lsystem.js';
 export type { ParamSpec, StageContext, StageKind } from './kinds/types.js';
 export { generationsOf, grammarOf } from './lsystem/cache.js';
 export { parseGrammar, takeDefines } from './lsystem/parse.js';

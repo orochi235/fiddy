@@ -17,6 +17,9 @@ export interface TreeNode {
   born: number;
   /** For an L-system stage, the index of the module that drew it. */
   module?: number;
+  /** For a stochastic L-system, which of the stage's selected buds it grew from: each bud has its
+   *  own derived string, and `module` indexes that one. Absent when every bud shares one string. */
+  bud?: number;
 }
 
 /** An open growing tip a later stage can grow from. */

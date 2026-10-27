@@ -44,7 +44,7 @@ export function TreeView({ skeleton, fitTo, reveal, selected, hover, onHover, di
     if (!fit.current) return;
     const r = canvas.current!.getBoundingClientRect();
     const n = pick(skeleton, fit.current, e.clientX - r.left, e.clientY - r.top, 8, reveal);
-    onHover(n && n.module !== undefined ? { stage: n.stage, module: n.module } : null);
+    onHover(n && n.module !== undefined ? { stage: n.stage, module: n.module, bud: n.bud } : null);
   };
 
   return (

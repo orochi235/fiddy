@@ -36,18 +36,20 @@ export function grammarOf(text: string): Grammar {
 }
 
 const SEP = '\u0000';
-const derived = memo<Module[][] | Error>(16, (key) => {
-  const [text, n, cap] = key.split(SEP);
+// Room for one derivation per bud of a stochastic crown, so an animated angle does not re-derive.
+const derived = memo<Module[][] | Error>(64, (key) => {
+  const [text, n, cap, seed] = key.split(SEP);
   try {
-    return derivations(grammarOf(text!), Number(n), Number(cap));
+    return derivations(grammarOf(text!), Number(n), Number(cap), Number(seed));
   } catch (e) {
     return e as Error;
   }
 });
 
-/** Every generation from the axiom to `n`, remembered; throws what deriving threw. */
-export function generationsOf(text: string, n: number, cap: number): Module[][] {
-  const d = derived([text, n, cap].join(SEP));
+/** Every generation from the axiom to `n`, remembered; throws what deriving threw. `seed` only
+ *  matters to a stochastic grammar. */
+export function generationsOf(text: string, n: number, cap: number, seed = 0): Module[][] {
+  const d = derived([text, n, cap, grammarOf(text).stochastic ? seed : 0].join(SEP));
   if (d instanceof Error) throw d;
   return d;
 }

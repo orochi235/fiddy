@@ -14,7 +14,9 @@ export interface Rule {
   right?: Module[];
   /** Parametric conditions (piece 4). */
   condition?: string;
-  /** More than one alternative makes the rule stochastic (piece 3). */
+  /** The successors one symbol can rewrite to. With more than one, or any written probability,
+   *  the rule is stochastic and every alternative carries `prob`; whatever they leave short of 1
+   *  is the chance the module stays as it is. */
   succ: { prob?: number; body: ModuleTemplate[] }[];
   /** Where the rule was written, 1-based. */
   line: number;
@@ -26,6 +28,8 @@ export interface Grammar {
   rules: Record<string, Rule>;
   /** `n = …` and `δ = …` lines, as ABOP prints them beside a grammar. δ is in degrees. */
   defines: { n?: number; delta?: number };
+  /** Whether any rule draws from the random stream when it rewrites. */
+  stochastic: boolean;
 }
 
 export class ParseError extends Error {

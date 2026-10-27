@@ -1,4 +1,4 @@
-import { generationsOf, grammarOf, type Grammar, type Module, moduleText, ParseError } from 'fiddy';
+import { derivationSeeds, generationsOf, grammarOf, type Grammar, type Module, moduleText, ParseError, streamFor } from 'fiddy';
 import { useMemo } from 'react';
 import type { Hover } from '../tree/draw';
 import { Thumb } from './Thumb';
@@ -7,6 +7,7 @@ import './GrammarPanel.css';
 
 interface Props {
   stage: string;
+  seed: number;
   text: string;
   n: number;
   delta: number;
@@ -28,17 +29,20 @@ function parsed(text: string): { grammar: Grammar } | { error: ParseError | Erro
 }
 
 /** Where the grammar is written, and three pictures of it: each rule's successor drawn, every
- *  generation drawn, and the final string, linked to the tree by hover. */
-export function GrammarPanel({ stage, text, n, delta, cap, hover, onHover, onText }: Props) {
+ *  generation drawn, and the final string, linked to the tree by hover. A stochastic grammar
+ *  derives a string per bud; the views show the first bud's. */
+export function GrammarPanel({ stage, seed, text, n, delta, cap, hover, onHover, onText }: Props) {
   const result = useMemo(() => parsed(text), [text]);
+  const bud = 'grammar' in result && result.grammar.stochastic ? 0 : undefined;
   const gens = useMemo((): Module[][] | Error | null => {
     if (!('grammar' in result)) return null;
     try {
-      return generationsOf(text, n, cap);
+      return generationsOf(text, n, cap, derivationSeeds(text, streamFor(seed, stage), 1)[0]);
     } catch (e) {
       return e as Error;
     }
-  }, [result, text, n, cap]);
+  }, [result, text, n, cap, seed, stage]);
+  const of = bud === undefined ? '' : ', first bud';
 
   return (
     <div className="fd-grammar">
@@ -48,8 +52,8 @@ export function GrammarPanel({ stage, text, n, delta, cap, hover, onHover, onTex
       {gens instanceof Error && <p className="fd-grammar-error">{gens.message}</p>}
       {Array.isArray(gens) && (
         <>
-          <Generations gens={gens} delta={delta} />
-          <LinkedString stage={stage} modules={gens.at(-1)!} hover={hover} onHover={onHover} />
+          <Generations gens={gens} delta={delta} title={`Generations${of}`} />
+          <LinkedString stage={stage} bud={bud} modules={gens.at(-1)!} hover={hover} onHover={onHover} title={`String${of}`} />
         </>
       )}
     </div>
@@ -74,17 +78,22 @@ function ErrorAt({ text, error }: { text: string; error: Error }) {
 }
 
 function RulePictures({ grammar, delta }: { grammar: Grammar; delta: number }) {
-  const rules = useMemo(() => Object.values(grammar.rules).map((r) => ({ rule: r, sketch: turtleSketch(r.succ[0]!.body, delta) })), [grammar, delta]);
+  const rows = useMemo(
+    () => Object.values(grammar.rules).flatMap((r) => r.succ.map((alt, i) => ({ key: `${r.pred.symbol}${i}`, symbol: r.pred.symbol, alt, sketch: turtleSketch(alt.body, delta) }))),
+    [grammar, delta],
+  );
   return (
     <section className="fd-grammar-section">
       <h4>Rules</h4>
       <div className="fd-rules">
-        {rules.map(({ rule: r, sketch }) => (
-          <div key={r.pred.symbol} className="fd-rule">
-            <span className="fd-rule-pred">{r.pred.symbol}</span>
-            <span className="fd-rule-arrow">→</span>
+        {rows.map(({ key, symbol, alt, sketch }) => (
+          <div key={key} className="fd-rule">
+            <span className="fd-rule-pred">{symbol}</span>
+            <span className="fd-rule-arrow">
+              →{alt.prob !== undefined && <small className="fd-rule-prob">{alt.prob.toFixed(2)}</small>}
+            </span>
             <Thumb skeleton={sketch} size={56} className="fd-thumb" />
-            <code className="fd-rule-text">{moduleText(r.succ[0]!.body)}</code>
+            <code className="fd-rule-text">{moduleText(alt.body)}</code>
           </div>
         ))}
       </div>
@@ -92,11 +101,11 @@ function RulePictures({ grammar, delta }: { grammar: Grammar; delta: number }) {
   );
 }
 
-function Generations({ gens, delta }: { gens: Module[][]; delta: number }) {
+function Generations({ gens, delta, title }: { gens: Module[][]; delta: number; title: string }) {
   const sketches = useMemo(() => gens.map((g) => (g.length <= SKETCH_CAP ? turtleSketch(g, delta) : null)), [gens, delta]);
   return (
     <section className="fd-grammar-section">
-      <h4>Generations</h4>
+      <h4>{title}</h4>
       <div className="fd-gens">
         {gens.map((g, i) => (
           <figure key={i} className="fd-gen">
@@ -111,15 +120,24 @@ function Generations({ gens, delta }: { gens: Module[][]; delta: number }) {
   );
 }
 
-function LinkedString({ stage, modules, hover, onHover }: { stage: string; modules: Module[]; hover: Hover | null; onHover: (h: Hover | null) => void }) {
-  const lit = hover?.stage === stage ? hover.module : -1;
+interface LinkedProps {
+  stage: string;
+  bud: number | undefined;
+  modules: Module[];
+  hover: Hover | null;
+  onHover: (h: Hover | null) => void;
+  title: string;
+}
+
+function LinkedString({ stage, bud, modules, hover, onHover, title }: LinkedProps) {
+  const lit = hover?.stage === stage && hover.bud === bud ? hover.module : -1;
   const shown = modules.slice(0, STRING_SHOWN);
   return (
     <section className="fd-grammar-section">
-      <h4>String</h4>
+      <h4>{title}</h4>
       <p className="fd-string" onPointerLeave={() => onHover(null)}>
         {shown.map((m, i) => (
-          <span key={i} className={i === lit ? 'fd-mod fd-mod--lit' : 'fd-mod'} onPointerEnter={() => onHover({ stage, module: i })}>
+          <span key={i} className={i === lit ? 'fd-mod fd-mod--lit' : 'fd-mod'} onPointerEnter={() => onHover({ stage, module: i, bud })}>
             {m.symbol}
           </span>
         ))}
