@@ -18,8 +18,9 @@ interface Props {
   onStages: (stages: Design['stages'], label: string) => void;
 }
 
-/** The stack as a vertical rack: each stage a box with the tree as it stands after it. Drag a
- *  stage to reorder, Delete to remove. */
+/** The stack as a vertical rack: each stage a box with the tree as it stands after it, zoomed to
+ *  fill the sidebar and panning no further than the rack. Drag a stage to reorder, Delete to
+ *  remove. */
 export function Pipeline({ design, steps, selected, onSelect, onStages }: Props) {
   const doc = useMemo(() => designDoc(design), [design]);
   const run = useMemo(() => runOf(design, steps), [design, steps]);
@@ -39,6 +40,9 @@ export function Pipeline({ design, steps, selected, onSelect, onStages }: Props)
         look="rack"
         options={OPTIONS}
         background={BACKGROUND}
+        maxScale={4}
+        bounded
+        refit="always"
         selected={selected}
         onSelect={(id) => id && onSelect(id)}
         onChange={(next, label) => {
