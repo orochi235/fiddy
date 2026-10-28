@@ -1,4 +1,4 @@
-import { add, cross, normalize, scale, type Vec3 } from './vec.js';
+import { add, cross, length, normalize, scale, type Vec3 } from './vec.js';
 
 /** A turtle's position and orientation: ABOP's heading H, left L and up U, with H × L = U. */
 export interface Frame {
@@ -37,6 +37,14 @@ export function roll(f: Frame, angle: number): Frame {
 }
 
 export const forward = (f: Frame, step: number): Frame => ({ ...f, pos: add(f.pos, scale(f.heading, step)) });
+
+/** ABOP's `$`: rolled about H until L is horizontal. Pointing straight up or down, unchanged. */
+export function level(f: Frame): Frame {
+  const left = cross([0, 1, 0], f.heading);
+  if (length(left) < 1e-9) return f;
+  const l = normalize(left);
+  return { ...f, left: l, up: cross(f.heading, l) };
+}
 
 /** The frame with its axes made orthonormal again, against drift over long strings. */
 export function tidy(f: Frame): Frame {

@@ -1,4 +1,4 @@
-import { derivationSeeds, generationsOf, grammarOf, type Grammar, type Module, moduleText, ParseError, streamFor } from 'fiddy';
+import { derivationSeeds, generationsOf, grammarOf, type Grammar, type Module, moduleString, ParseError, streamFor, templateText } from 'fiddy';
 import { useMemo } from 'react';
 import type { Hover } from '../tree/draw';
 import { Thumb } from './Thumb';
@@ -79,21 +79,21 @@ function ErrorAt({ text, error }: { text: string; error: Error }) {
 
 function RulePictures({ grammar, delta }: { grammar: Grammar; delta: number }) {
   const rows = useMemo(
-    () => Object.values(grammar.rules).flatMap((r) => r.succ.map((alt, i) => ({ key: `${r.pred.symbol}${i}`, symbol: r.pred.symbol, alt, sketch: turtleSketch(alt.body, delta) }))),
+    () => Object.values(grammar.rules).flatMap((rs) => rs.flatMap((r) => r.succ.map((alt, i) => ({ key: `${r.line}:${r.lhs}:${i}`, lhs: r.lhs, alt, sketch: turtleSketch(alt.body, delta) })))),
     [grammar, delta],
   );
   return (
     <section className="fd-grammar-section">
       <h4>Rules</h4>
       <div className="fd-rules">
-        {rows.map(({ key, symbol, alt, sketch }) => (
+        {rows.map(({ key, lhs, alt, sketch }) => (
           <div key={key} className="fd-rule">
-            <span className="fd-rule-pred">{symbol}</span>
+            <span className="fd-rule-pred">{lhs}</span>
             <span className="fd-rule-arrow">
               →{alt.prob !== undefined && <small className="fd-rule-prob">{alt.prob.toFixed(2)}</small>}
             </span>
             <Thumb skeleton={sketch} size={56} className="fd-thumb" />
-            <code className="fd-rule-text">{moduleText(alt.body)}</code>
+            <code className="fd-rule-text">{templateText(alt.body)}</code>
           </div>
         ))}
       </div>
@@ -138,7 +138,7 @@ function LinkedString({ stage, bud, modules, hover, onHover, title }: LinkedProp
       <p className="fd-string" onPointerLeave={() => onHover(null)}>
         {shown.map((m, i) => (
           <span key={i} className={i === lit ? 'fd-mod fd-mod--lit' : 'fd-mod'} onPointerEnter={() => onHover({ stage, module: i, bud })}>
-            {m.symbol}
+            {moduleString(m)}
           </span>
         ))}
         {modules.length > STRING_SHOWN && <span className="fd-string-more"> … {(modules.length - STRING_SHOWN).toLocaleString('en-US')} more</span>}

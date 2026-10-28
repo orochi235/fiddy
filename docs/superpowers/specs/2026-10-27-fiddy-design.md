@@ -29,8 +29,8 @@ timeline (2026-10-27).
 | 1 | Foundation: skeleton, buds, stages, seeded streams, blits timing, 2D renderer, lab shell | — | built |
 | 2 | L-system, deterministic, with grammar workbench | 1 | built |
 | 3 | Stochastic rules | 2 | built |
-| 4 | Parametric rules: numbers, conditions, expressions | 3 | unbuilt |
-| 5 | Context-sensitive rules | 4 | unbuilt |
+| 4 | Parametric rules: numbers, conditions, expressions | 3 | built |
+| 5 | Context-sensitive rules | 4 | built |
 | 6 | Recursive parametric generator (Weber–Penn style) | 1 | built |
 | 7 | Space colonization | 1 | unbuilt |
 | 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | unbuilt |
@@ -129,6 +129,25 @@ optionally weighted as `F (.33) → …`, the probability ABOP prints over the a
   generations as they were.
 - A stochastic stage's nodes carry `bud`, which bud's string their `module` indexes. The lab's grammar
   views show the first bud's string, and hover links only within it.
+
+**Parametric rules** (piece 4, 2026-10-28) are ABOP's chapter 1.10 notation: `A(l,w) : l > 1 → F(l)[+A(l*r,w)]`.
+
+- Expressions have `+ - * / % ^`, comparisons, `&& || !`, `?:`, and functions (`sin`, `cos`, `sqrt`,
+  `min`, `max`, …). Trigonometry is in degrees, like the turtle's angles (2026-10-28).
+- `#define name value` declares a constant, as ABOP writes it. `#` starts a comment anywhere else, and
+  `/* */` is a comment. `//` is not a comment: ABOP's 3D grammars write `////` as four rolls (2026-10-28).
+- The turtle reads a module's first parameter: `F(l)` steps `l` × step, `+(a)` and the other turns use
+  `a` degrees, `!(w)` sets the radius to `w` × width. `$` rolls the turtle until its left axis is
+  level.
+- For each module, the first rule (in the order written) whose predecessor, arity, contexts, and
+  condition hold rewrites it. Lines with the same left side are one stochastic rule's alternatives.
+  A module whose arity matches no rule stays as it is.
+
+**Context-sensitive rules** (piece 5, 2026-10-28): `left < pred > right`, either side optional or `*`.
+Contexts skip `#ignore` symbols. A left context steps over whole branches and out of the one the
+module is in; a right context steps over branches it doesn't name, may name one (`A > [B]C`), and a
+`]` in it skips to the end of the current branch. Context parameters bind before the predecessor's,
+then after, in reading order.
 
 **The rewriter** works on an array of modules, never a JS string. It stops at a module cap (200,000 by
 default, adjustable); hitting the cap is a stage error.

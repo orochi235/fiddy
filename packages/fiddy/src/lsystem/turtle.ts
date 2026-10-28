@@ -1,4 +1,4 @@
-import { type Frame, forward, pitch, roll, tidy, yaw } from '../frame.js';
+import { type Frame, forward, level, pitch, roll, tidy, yaw } from '../frame.js';
 import type { Bud, TreeNode } from '../skeleton.js';
 import type { Module } from './types.js';
 
@@ -28,6 +28,8 @@ interface State {
   dist: number;
 }
 
+const RAD = Math.PI / 180;
+
 /** How often a long run of turns re-orthonormalizes the frame. */
 const TIDY_EVERY = 64;
 
@@ -55,26 +57,33 @@ export function interpret(modules: readonly Module[], bud: Bud, nodes: TreeNode[
   };
 
   for (let i = 0; i < modules.length; i++) {
-    switch (modules[i]!.symbol) {
+    const m = modules[i]!;
+    // A parameter sets the step (as a multiple of `step`), the angle in degrees, or the width.
+    const p = m.params?.[0];
+    const turn = p === undefined ? o.delta : p * RAD;
+    switch (m.symbol) {
       case 'F': {
-        s = { ...s, frame: forward(s.frame, o.step), dist: s.dist + o.step };
+        const step = p === undefined ? o.step : p * o.step;
+        s = { ...s, frame: forward(s.frame, step), dist: s.dist + step };
         place(s.at, i);
         break;
       }
       case 'f': {
         // An anchor with no parent, so no segment is drawn into it; the next F draws from here.
-        s = { ...s, frame: forward(s.frame, o.step), dist: s.dist + o.step };
+        const step = p === undefined ? o.step : p * o.step;
+        s = { ...s, frame: forward(s.frame, step), dist: s.dist + step };
         place(null, i);
         break;
       }
-      case '+': s = { ...s, frame: yaw(s.frame, o.delta) }; turns++; break;
-      case '-': s = { ...s, frame: yaw(s.frame, -o.delta) }; turns++; break;
-      case '&': s = { ...s, frame: pitch(s.frame, o.delta) }; turns++; break;
-      case '^': s = { ...s, frame: pitch(s.frame, -o.delta) }; turns++; break;
-      case '\\': s = { ...s, frame: roll(s.frame, o.delta) }; turns++; break;
-      case '/': s = { ...s, frame: roll(s.frame, -o.delta) }; turns++; break;
+      case '+': s = { ...s, frame: yaw(s.frame, turn) }; turns++; break;
+      case '-': s = { ...s, frame: yaw(s.frame, -turn) }; turns++; break;
+      case '&': s = { ...s, frame: pitch(s.frame, turn) }; turns++; break;
+      case '^': s = { ...s, frame: pitch(s.frame, -turn) }; turns++; break;
+      case '\\': s = { ...s, frame: roll(s.frame, turn) }; turns++; break;
+      case '/': s = { ...s, frame: roll(s.frame, -turn) }; turns++; break;
       case '|': s = { ...s, frame: yaw(s.frame, Math.PI) }; break;
-      case '!': s = { ...s, width: s.width * o.thin }; break;
+      case '$': s = { ...s, frame: level(s.frame) }; break;
+      case '!': s = { ...s, width: p === undefined ? s.width * o.thin : p * o.width }; break;
       case '[': stack.push(s); s = { ...s, order: s.order + 1 }; break;
       case ']': s = stack.pop() ?? s; break;
     }

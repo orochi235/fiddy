@@ -52,13 +52,14 @@
 
 .fd-rule {
   display: grid;
-  grid-template-columns: 1.2em 2.4em 56px 1fr;
+  grid-template-columns: minmax(1.2em, max-content) 2.4em 56px 1fr;
   align-items: center;
   gap: 6px;
 }
 
 .fd-rule-pred {
-  font: 15px ui-monospace, monospace;
+  font: 13px ui-monospace, monospace;
+  white-space: nowrap;
   text-align: end;
 }
 

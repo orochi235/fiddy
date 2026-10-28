@@ -14,6 +14,14 @@ exports[`presets > Fig. 1.24f grows, and its skeleton is unchanged 1`] = `"404a9
 
 exports[`presets > Fig. 1.27 grows, and its skeleton is unchanged 1`] = `"22431034"`;
 
+exports[`presets > Fig. 1.31a grows, and its skeleton is unchanged 1`] = `"c6d31790"`;
+
+exports[`presets > Fig. 2.6, monopodial grows, and its skeleton is unchanged 1`] = `"a3342542"`;
+
+exports[`presets > Fig. 2.7, sympodial grows, and its skeleton is unchanged 1`] = `"4e57e837"`;
+
+exports[`presets > Fig. 2.8, ternary grows, and its skeleton is unchanged 1`] = `"c9fd8189"`;
+
 exports[`presets > Grafted grows, and its skeleton is unchanged 1`] = `"e73b0728"`;
 
 exports[`presets > Grafted, wild grows, and its skeleton is unchanged 1`] = `"5912e1f6"`;

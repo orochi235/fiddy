@@ -3,7 +3,7 @@ import { UPRIGHT } from '../frame.js';
 import type { TreeNode } from '../skeleton.js';
 import { PRESETS } from '../presets.js';
 import { parseGrammar, takeDefines } from './parse.js';
-import { derivations, derive, moduleText } from './rewrite.js';
+import { derivations, derive, moduleText, templateText } from './rewrite.js';
 import { interpret, type TurtleOptions } from './turtle.js';
 import { type Grammar, ModuleCapError, ParseError } from './types.js';
 
@@ -25,30 +25,44 @@ describe('parseGrammar', () => {
   it("reads ABOP's notation, defines included", () => {
     const g = parseGrammar(FIG_1_24C);
     expect(moduleText(g.axiom)).toBe('F');
-    expect(moduleText(g.rules.F!.succ[0]!.body)).toBe('FF-[-F+F+F]+[+F-F-F]');
+    expect(moduleText(g.rules.F![0]!.succ[0]!.body)).toBe('FF-[-F+F+F]+[+F-F-F]');
     expect(g.defines).toEqual({ n: 4, delta: 22.5 });
   });
 
   it('reads the ASCII stand-ins and comments', () => {
     const g = parseGrammar('w: X  # start\nX -> F[+X]F[-X]+X\nF->FF');
-    expect(moduleText(g.rules.X!.succ[0]!.body)).toBe('F[+X]F[-X]+X');
+    expect(moduleText(g.rules.X![0]!.succ[0]!.body)).toBe('F[+X]F[-X]+X');
     expect(Object.keys(g.rules)).toEqual(['X', 'F']);
   });
 
   it.each([
-    ['ω: A(1)', 1, 5, 'piece 4'],
-    ['ω: A\np1: A : t > 1 → F', 2, 7, 'piece 4'],
-    ['ω: A\np1: B < A → F', 2, 7, 'piece 5'],
-  ])('refuses later-piece syntax with its position: %j', (source, line, col, piece) => {
+    ['ω: A\np1: A : t > 1 → F', 2, 9, 'not a parameter'],
+    ['ω: A(x)', 1, 6, 'not a parameter'],
+    ['ω: F\np1: F → F(l', 2, 10, 'unclosed'],
+    ['ω: F\np1: F(2) → F', 2, 7, 'names'],
+    ['ω: F\np1: F(a, a) → F', 2, 5, 'named twice'],
+  ])('points at a mistake: %j', (source, line, col, what) => {
     const e = refused(source);
     expect([e.line, e.col]).toEqual([line, col]);
-    expect(e.message).toContain(piece);
+    expect(e.message).toContain(what);
+  });
+
+  it("reads ABOP's parametric notation, #define and /* */ included", () => {
+    const g = parseGrammar('#define r 0.5 /* contraction */\nω: A(2)\np1: A(l) : l > 1 → F(l)[+A(l*r)]A(l*r)');
+    expect(g.constants).toEqual({ r: 0.5 });
+    expect(moduleText(g.axiom)).toBe('A(2)');
+    expect(g.rules.A![0]!.condition!.text).toBe('l > 1');
+    expect(templateText(g.rules.A![0]!.succ[0]!.body)).toBe('F(l)[+A(l*r)]A(l*r)');
+  });
+
+  it('keeps // as two rolls, not a comment', () => {
+    expect(moduleText(parseGrammar('ω: F//F # a comment').axiom)).toBe('F//F');
   });
 
   it('reads several rules for one symbol as weighted alternatives', () => {
     const g = parseGrammar('ω: F\np1: F (.33) → F[+F]F\np2: F (.33) -> F[-F]F\np3: F (.34) → F');
     expect(g.stochastic).toBe(true);
-    expect(g.rules.F!.succ.map((a) => [a.prob, moduleText(a.body)])).toEqual([
+    expect(g.rules.F![0]!.succ.map((a) => [a.prob, moduleText(a.body)])).toEqual([
       [0.33, 'F[+F]F'],
       [0.33, 'F[-F]F'],
       [0.34, 'F'],
@@ -57,14 +71,14 @@ describe('parseGrammar', () => {
 
   it('splits what written probabilities leave among the unwritten, evenly', () => {
     const g = parseGrammar('ω: F\nF (.5) → FF\nF → F[+F]\nF → F[-F]');
-    expect(g.rules.F!.succ.map((a) => a.prob)).toEqual([0.5, 0.25, 0.25]);
-    expect(parseGrammar('ω: F\nF → FF\nF → F').rules.F!.succ.map((a) => a.prob)).toEqual([0.5, 0.5]);
+    expect(g.rules.F![0]!.succ.map((a) => a.prob)).toEqual([0.5, 0.25, 0.25]);
+    expect(parseGrammar('ω: F\nF → FF\nF → F').rules.F![0]!.succ.map((a) => a.prob)).toEqual([0.5, 0.5]);
   });
 
   it('leaves a deterministic grammar without probabilities', () => {
     const g = parseGrammar(FIG_1_24C);
     expect(g.stochastic).toBe(false);
-    expect(g.rules.F!.succ[0]!.prob).toBeUndefined();
+    expect(g.rules.F![0]!.succ[0]!.prob).toBeUndefined();
   });
 
   it('refuses probabilities past 1', () => {
@@ -90,7 +104,7 @@ function countsByRecurrence(g: Grammar, n: number): number[] {
   for (let i = 0; i < n; i++) {
     const next = new Map<string, number>();
     for (const [sym, c] of counts) {
-      const body = g.rules[sym]?.succ[0]!.body ?? [{ symbol: sym }];
+      const body = g.rules[sym]?.[0]!.succ[0]!.body ?? [{ symbol: sym }];
       for (const b of body) next.set(b.symbol, (next.get(b.symbol) ?? 0) + c);
     }
     counts = next;
@@ -106,7 +120,8 @@ describe('derivations', () => {
     expect(derivations(g, 4).map((d) => d.length)).toEqual(countsByRecurrence(g, 4));
   });
 
-  const fixed = PRESETS.filter((p) => p.source && !parseGrammar(String(p.design().stages[1]!.params.grammar)).stochastic);
+  const plain = (g: Grammar) => !g.stochastic && !g.contextual && Object.values(g.rules).every((rs) => rs.length === 1 && !rs[0]!.condition);
+  const fixed = PRESETS.filter((p) => p.source && plain(parseGrammar(String(p.design().stages[1]!.params.grammar))));
   it.each(fixed.map((p) => [p.name, p] as const))('%s derives the count its grammar implies', (_name, p) => {
     const params = p.design().stages[1]!.params;
     const g = parseGrammar(String(params.grammar));
@@ -117,6 +132,45 @@ describe('derivations', () => {
   it('stops at the module cap', () => {
     const g = parseGrammar(FIG_1_24C);
     expect(() => derive(g, 4, 1000)).toThrow(ModuleCapError);
+  });
+});
+
+describe('parametric derivations', () => {
+  it('binds formals, evaluates successors, and stops on the condition', () => {
+    const g = parseGrammar('ω: A(1)\np1: A(t) : t < 4 → F(t)A(t+1)\np2: A(t) : t >= 4 → X');
+    expect(derivations(g, 5).map(moduleText)).toEqual(['A(1)', 'F(1)A(2)', 'F(1)F(2)A(3)', 'F(1)F(2)F(3)A(4)', 'F(1)F(2)F(3)X', 'F(1)F(2)F(3)X']);
+  });
+
+  it('rewrites by the first rule that holds, and leaves a module with the wrong arity alone', () => {
+    const g = parseGrammar('ω: A(5)A\nA(x) : x > 3 → B\nA(x) → C');
+    expect(moduleText(derive(g, 1))).toBe('BA');
+  });
+
+  it('evaluates precedence, functions in degrees, and the ternary', () => {
+    const g = parseGrammar('ω: A\nA → B(2+3*2^2, -2^2, cos(60), 1 < 2 && 3 > 4, 0 ? 5 : 6)');
+    expect(derive(g, 1)[0]!.params).toEqual([14, -4, expect.closeTo(0.5), 0, 6]);
+  });
+});
+
+describe('context-sensitive derivations', () => {
+  it('passes a signal up an axis (ABOP Fig. 1.30 style)', () => {
+    const g = parseGrammar('ω: baaaaaaaa\nb < a → b\nb → a');
+    expect(derivations(g, 3).map(moduleText)).toEqual(['baaaaaaaa', 'abaaaaaaa', 'aabaaaaaa', 'aaabaaaaa']);
+  });
+
+  it('steps over branches and #ignore symbols', () => {
+    const g = parseGrammar('#ignore: +-\nω: A[+B]+C\nA < C → X\nA > C → Y');
+    expect(moduleText(derive(g, 1))).toBe('Y[+B]+X');
+  });
+
+  it('matches a bracketed right context, and leaves a branch by its left context', () => {
+    const g = parseGrammar('ω: A[B]C\nA > [B]C → X\nA < B → Y');
+    expect(moduleText(derive(g, 1))).toBe('X[Y]C');
+  });
+
+  it('binds context parameters before the predecessor and after it', () => {
+    const g = parseGrammar('ω: A(1)B(2)C(3)\nA(a) < B(b) > C(c) → B(a*100+b*10+c)');
+    expect(moduleText(derive(g, 1))).toBe('A(1)B(123)C(3)');
   });
 });
 

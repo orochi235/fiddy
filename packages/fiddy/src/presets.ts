@@ -20,7 +20,13 @@ const one = (grammar: string, n: number, delta: number) => (): Design => ({
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, Weber–Penn trees, and designs built on them. */
+/** An L-system whose turns are all written as parameters, so δ does not matter. */
+const param = (grammar: string, n: number, more: Stage['params']) => (): Design => ({
+  seed: 1,
+  stages: restack([seed(), lsystem('plant', grammar, n, 0, more)]),
+});
+
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 to 1.31 and chapter 2, Weber–Penn trees, and designs built on them. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -32,6 +38,42 @@ export const PRESETS: readonly Preset[] = [
     name: 'Fig. 1.27',
     source: 'ABOP Fig. 1.27',
     design: one('ω: F\np1: F (.33) → F[+F]F[-F]F\np2: F (.33) → F[+F]F\np3: F (.34) → F[-F]F', 5, 25.7),
+  },
+  {
+    name: 'Fig. 1.31a',
+    source: 'ABOP Fig. 1.31a',
+    design: one(
+      '#ignore: +-F\nω: F1F1F1\n0 < 0 > 0 → 0\n0 < 0 > 1 → 1[+F1F1]\n0 < 1 > 0 → 1\n0 < 1 > 1 → 1\n1 < 0 > 0 → 0\n1 < 0 > 1 → 1F1\n1 < 1 > 0 → 1\n1 < 1 > 1 → 0\n* < + > * → -\n* < - > * → +',
+      30,
+      22.5,
+    ),
+  },
+  {
+    name: 'Fig. 2.6, monopodial',
+    source: 'ABOP Fig. 2.6',
+    design: param(
+      '#define r1 0.9\n#define r2 0.6\n#define a0 45\n#define a2 45\n#define d 137.5\n#define wr 0.707\nω: A(1,10)\np1: A(l,w) → !(w)F(l)[&(a0)B(l*r2,w*wr)]/(d)A(l*r1,w*wr)\np2: B(l,w) → !(w)F(l)[-(a2)$C(l*r2,w*wr)]C(l*r1,w*wr)\np3: C(l,w) → !(w)F(l)[+(a2)$B(l*r2,w*wr)]B(l*r1,w*wr)',
+      10,
+      { width: 0.01 },
+    ),
+  },
+  {
+    name: 'Fig. 2.7, sympodial',
+    source: 'ABOP Fig. 2.7',
+    design: param(
+      '#define r1 0.9\n#define r2 0.7\n#define a1 10\n#define a2 60\n#define wr 0.707\nω: A(1,10)\np1: A(l,w) → !(w)F(l)[&(a1)B(l*r1,w*wr)]/(180)[&(a2)B(l*r2,w*wr)]\np2: B(l,w) → !(w)F(l)[+(a1)$B(l*r1,w*wr)][-(a2)$B(l*r2,w*wr)]',
+      10,
+      { width: 0.01 },
+    ),
+  },
+  {
+    name: 'Fig. 2.8, ternary',
+    source: 'ABOP Fig. 2.8',
+    design: param(
+      '#define d1 94.74\n#define d2 132.63\n#define a 18.95\n#define lr 1.109\n#define vr 1.732\nω: !(1)F(200)/(45)A\np1: A → !(vr)F(50)[&(a)F(50)A]/(d1)[&(a)F(50)A]/(d2)[&(a)F(50)A]\np2: F(l) → F(l*lr)\np3: !(w) → !(w*vr)',
+      6,
+      { width: 0.05 },
+    ),
   },
   {
     name: 'Grafted',
