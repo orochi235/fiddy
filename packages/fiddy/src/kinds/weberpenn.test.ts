@@ -65,7 +65,7 @@ describe('the Weber–Penn stage', () => {
     const bud: Bud = { node: 0, frame, order: 2, vigor: 1 };
     const nodes: TreeNode[] = [{ id: 0, parent: null, pos: frame.pos, radius: 1, order: 2, stage: 'x', born: 0 }];
     const stage: Stage = { id: 'wp', kind: 'weberpenn', params: { levels: 1, branches1: 3, curve: 0, length: 6, segments: 3 }, input: { from: [] } };
-    const buds = weberPenn.apply({ stage, params: paramsOf(stage), buds: [bud], nodes, rng: streamFor(1, 'wp') });
+    const buds = weberPenn.apply({ stage, params: paramsOf(stage), buds: [bud], nodes, rng: streamFor(1, 'wp'), clock: 0 });
 
     const trunk = nodes.filter((n) => n.order === 2 && n.stage === 'wp');
     expect(trunk[0]!.parent).toBe(0);

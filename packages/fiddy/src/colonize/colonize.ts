@@ -136,7 +136,7 @@ export function pipeRadii(nodes: readonly Grown[], tip: number, exponent: number
   for (let i = nodes.length - 1; i >= 0; i--) {
     const n = nodes[i]!;
     radii[i] = n.children === 0 ? tip : sum[i]! ** (1 / exponent);
-    if (n.parent >= 0) sum[n.parent] += radii[i]! ** exponent;
+    if (n.parent >= 0) sum[n.parent] = sum[n.parent]! + radii[i]! ** exponent;
   }
   return radii;
 }
