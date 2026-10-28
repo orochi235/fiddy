@@ -16,6 +16,10 @@ export interface Hover {
   bud?: number;
 }
 
+/** Line width per world unit of radius: the 2D view draws a branch this many times its radius
+ *  wide, and the 3D view builds its tubes at half of it, so the two agree. */
+export const WEIGHT = 0.12;
+
 /** World to screen: `x * scale + ox`, `oy - y * scale` (world y points up). */
 export interface Fit {
   scale: number;
@@ -47,7 +51,7 @@ function extentsOf(nodes: readonly TreeNode[]) {
 }
 
 const extentCache = new WeakMap<readonly TreeNode[], ReturnType<typeof extentsOf>>();
-function extents(nodes: readonly TreeNode[]) {
+export function extents(nodes: readonly TreeNode[]) {
   let e = extentCache.get(nodes);
   if (!e) extentCache.set(nodes, (e = extentsOf(nodes)));
   return e;
@@ -85,7 +89,7 @@ export interface DrawOptions {
 export function drawSkeleton(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, s: Skeleton, o: DrawOptions): Fit {
   const fit = fitOf(o.fitTo ?? s.nodes, o.width, o.height, o.pad ?? 12);
   const ext = extents(s.nodes);
-  const weight = o.weight ?? 0.12;
+  const weight = o.weight ?? WEIGHT;
   ctx.lineCap = 'round';
   for (const n of s.nodes) {
     if (n.parent === null) continue;

@@ -35,3 +35,12 @@ export const inked = (page) =>
     for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++;
     return n / (c.width * c.height);
   });
+
+/** Switches the tree pane to its 2D or 3D view. */
+export async function chooseView(page, view) {
+  await page.click(`.fd-views button:text-is("${view}")`);
+  if (view === '3D') await page.waitForSelector('.fd-tree3d');
+}
+
+/** How many triangles the 3D view is drawing. */
+export const triangles = (page) => page.$eval('.fd-tree3d', (el) => Number(el.dataset.triangles));

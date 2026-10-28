@@ -1,11 +1,11 @@
 # fiddy design
 
-**Status: pieces 0–3 built 2026-10-27; pieces 4–10 unbuilt**, each to get its own spec when its turn
-comes. The lab waits on a weasel release for its vertical rack (see Lab).
+**Status: every piece built (0–3 on 2026-10-27, 4–10 on 2026-10-28).** The lab waits on a weasel
+release for its vertical rack (see Lab).
 
 fiddy generates trees, the arboreal kind: a JS library (`fiddy` on npm, free as of 2026-10-27) and a
 labkit lab for designing them. This document is for whoever builds or extends it, and answers what the
-pieces are, how they fit, and what the first build contains.
+pieces are and how they fit.
 
 ## Goals
 
@@ -33,7 +33,7 @@ timeline (2026-10-27).
 | 5 | Context-sensitive rules | 4 | built |
 | 6 | Recursive parametric generator (Weber–Penn style) | 1 | built |
 | 7 | Space colonization | 1 | built |
-| 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | unbuilt |
+| 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | built |
 | 9 | Light competition (Palubicki-style) | 1, ideally 8 | built |
 | 10 | Wind: a time-dependent bend on the finished skeleton, on the blits mix | 1 | built |
 
@@ -247,6 +247,24 @@ Decisions:
 - **A node cap** (default 4,000) stops growth, so a big cycle count stays interactive. The default preset
   grows about 2,100 nodes in under 50 ms (2026-10-28).
 
+## 3D
+
+Piece 8 (2026-10-28). The library builds meshes and writes glTF with no DOM; the lab draws them with
+three.js.
+
+- **Tubes** (`tubeMesh`): the skeleton splits into runs, each continuing through a node's thickest
+  child, and every node of a run gets a ring, carried along by parallel transport so tubes do not
+  twist. A node's other children start runs of their own from its position, at their own radius.
+- **Leaves** (`leafMesh`): one flat leaf at every open bud, along the bud's heading, each rolled by
+  the golden angle from the last. ABOP's polygon leaves (`{ … }`) are not drawn (2026-10-28).
+- **glTF** (`toGlb`): one binary file, a node, mesh, and material per part, Y up. Khronos's
+  validator reports no errors or warnings on an exported Weber–Penn tree (2026-10-28).
+- **The lab's 3D view** builds tubes at half the 2D view's line weight per unit of radius, so the two
+  views agree on thickness, with leaves sized as a share of the finished tree (the Leaves slider). It
+  frames the finished tree, keeping the orbit unless the tree's size or place changes by a tenth.
+  Export glTF writes the finished tree as the view dresses it. three.js loads only once the 3D view
+  is first shown (2026-10-28).
+
 ## Timing
 
 blits is in from the start (2026-10-27):
@@ -297,7 +315,7 @@ Layout (2026-10-27, mockup B), a CSS grid inside the one instrument's body:
 | Area | Contents |
 |---|---|
 | Left column | The preset menu, then the pipeline: `EffectEditor`, `look="rack"`, `direction: 'down'`, `showPreviews`. Each stage box shows a thumbnail of the tree after that stage, and a `~` on any animated param. |
-| Center | The tree, 2D. The selected stage's branches are highlighted. |
+| Center | The tree, in 2D (the selected stage's branches highlighted) or in 3D (see 3D), switched at the pane's top left. |
 | Right | The inspector for the selected stage: its params panel, and for an L-system the grammar editor, rule pictures, generation strip, and linked string. |
 | Bottom | The transport: the blits score drawn as one band per stage and a curve per motion, with the playhead. |
 
@@ -338,7 +356,8 @@ Library, vitest:
 
 Lab:
 
-- `npm run smoke` loads the built lab headless, visits every preset, and fails on any console error.
+- `npm run smoke` loads the built lab headless, visits every preset in the 2D view and then the 3D
+  one, and fails on any console error or a tree that draws nothing.
 - `npm run shots` screenshots every preset and posts them to the wall under the `fiddy` zone.
 
 The library suite is enlisted on the onto fleet (`.onto/tests`). Typecheck runs there too, as a

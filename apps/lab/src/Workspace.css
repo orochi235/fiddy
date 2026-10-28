@@ -19,6 +19,7 @@
 }
 
 .fd-workspace-tree {
+  position: relative;
   grid-area: tree;
   min-width: 0;
   min-height: 0;
@@ -44,4 +45,33 @@
 
 .fd-preset select {
   flex: 1;
+}
+
+.fd-views {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  display: flex;
+}
+
+.fd-views button {
+  padding: 3px 9px;
+  border: 1px solid var(--fd-line);
+  background: var(--fd-pane);
+  color: var(--fd-muted);
+  cursor: pointer;
+}
+
+.fd-views button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.fd-views button:last-child {
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+}
+
+.fd-views button[aria-pressed='true'] {
+  color: var(--fd-ink);
+  background: var(--fd-ground);
 }

@@ -1,5 +1,5 @@
 import { animate, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
 import { Pipeline } from './pipeline/Pipeline';
 import { editStage, useFiddy, withStages } from './session';
@@ -7,6 +7,9 @@ import { presetState, writeHash } from './state';
 import { Transport } from './transport/Transport';
 import type { Hover, RevealMode } from './tree/draw';
 import { TreeView } from './tree/TreeView';
+
+// three.js loads only once the 3D view is first shown.
+const TreeView3D = lazy(() => import('./tree/TreeView3D').then((m) => ({ default: m.TreeView3D })));
 import './Workspace.css';
 
 const lastSkeleton = (steps: readonly StageResult[]): Skeleton | null => {
@@ -31,6 +34,7 @@ export function Workspace() {
   const [hover, setHover] = useState<Hover | null>(null);
   const [reveal, setReveal] = useState<RevealMode>('grow');
   const [playing, setPlaying] = useState(false);
+  const [view, setView] = useState<'2d' | '3d'>('2d');
 
   const animator = useMemo(() => animate(design), [design]);
   const grownBy = (a: typeof animator) => a.spans.at(-1)?.end ?? 0;
@@ -111,7 +115,20 @@ export function Workspace() {
         />
       </div>
       <div className="fd-workspace-tree">
-        <TreeView skeleton={skeleton} fitTo={finished} reveal={treeReveal} selected={stage?.id ?? null} hover={hover} onHover={setHover} dimmed={failed} />
+        {view === '2d' ? (
+          <TreeView skeleton={skeleton} fitTo={finished} reveal={treeReveal} selected={stage?.id ?? null} hover={hover} onHover={setHover} dimmed={failed} />
+        ) : (
+          <Suspense fallback={null}>
+            <TreeView3D skeleton={skeleton} fitTo={finished} reveal={treeReveal} name={state.preset || 'tree'} dimmed={failed} />
+          </Suspense>
+        )}
+        <div className="fd-views" role="group" aria-label="View">
+          {(['2d', '3d'] as const).map((v) => (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
+              {v.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="fd-workspace-inspector">
         <Inspector

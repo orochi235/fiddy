@@ -29,3 +29,7 @@ export { hashString, mulberry32, type Rng, streamFor } from './random.js';
 export { type Bud, emptySkeleton, type Skeleton, skeletonHash, type TreeNode } from './skeleton.js';
 export type { Vec3 } from './vec.js';
 export { blow, type Wind } from './wind.js';
+export { type GlbPart, toGlb } from './mesh/gltf.js';
+export { type LeafOptions, leafMesh } from './mesh/leaves.js';
+export { type TubeOptions, tubeMesh } from './mesh/tube.js';
+export type { Mesh } from './mesh/types.js';

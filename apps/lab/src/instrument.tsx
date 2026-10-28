@@ -10,6 +10,8 @@ export const fiddyInstrument = defineInstrument<FiddyState, Record<string, never
   defaultConfig: () => ({}),
   initialState,
   undo: { snapshotOn: [EDIT], maxDepth: 100 },
+  // The 3D view keeps its own orbit camera.
+  orbit: false,
   render: (ctx) => {
     bindEdits(ctx.trial.id, ctx.emit);
     return <Workspace />;
