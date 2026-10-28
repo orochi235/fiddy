@@ -1,5 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`presets > Colonized grows, and its skeleton is unchanged 1`] = `"bf0476ba"`;
+
+exports[`presets > Colonized on an L-system grows, and its skeleton is unchanged 1`] = `"e14c988b"`;
+
+exports[`presets > Colonized, conifer grows, and its skeleton is unchanged 1`] = `"e08da036"`;
+
 exports[`presets > Fig. 1.24a grows, and its skeleton is unchanged 1`] = `"82934f7e"`;
 
 exports[`presets > Fig. 1.24b grows, and its skeleton is unchanged 1`] = `"04ed3d73"`;

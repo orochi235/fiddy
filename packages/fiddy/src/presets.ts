@@ -13,12 +13,19 @@ function lsystem(id: string, grammar: string, n: number, delta: number, more: St
   return { id, kind: 'lsystem', params: { grammar, n, delta, ...more }, input: { from: [], ...(select ? { select } : {}) } };
 }
 
-const one = (grammar: string, n: number, delta: number) => (): Design => ({
+const colonize = (id: string, params: Stage['params'], select?: Stage['input']['select']): Stage => ({
+  id,
+  kind: 'colonize',
+  params,
+  input: { from: [], ...(select ? { select } : {}) },
+});
+
+const one =(grammar: string, n: number, delta: number) => (): Design => ({
   seed: 1,
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, and designs built on them. */
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, designs built on them, and space-colonized crowns. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -50,6 +57,25 @@ export const PRESETS: readonly Preset[] = [
         seed(),
         lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 3, 30, { step: 4, width: 2 }),
         lsystem('crown', 'ω: X\np1: X (.5) → F[+X][-X]FX\np2: X (.3) → F[+X]FX\np3: X (.2) → F[-X]FX\np4: F → FF', 4, 25.7, { width: 0.6 }, { minOrder: 2 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Colonized',
+    design: () => ({ seed: 1, stages: restack([seed(), colonize('crown', {})]) }),
+  },
+  {
+    name: 'Colonized, conifer',
+    design: () => ({ seed: 1, stages: restack([seed(), colonize('crown', { shape: 'cone', width: 30, height: 60, gap: 4, points: 2500 })]) }),
+  },
+  {
+    name: 'Colonized on an L-system',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        seed(),
+        lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 2, 30, { step: 4, width: 2 }),
+        colonize('crown', { gap: 2, width: 50, height: 28 }, { minOrder: 2 }),
       ]),
     }),
   },
