@@ -276,10 +276,12 @@ three.js.
 blits is in from the start (2026-10-27):
 
 - **Growth playback.** Pipeline order is the score: each stage grows for `time.grow` seconds after the
-  one before it, instant kinds (the seed) taking none. One looping voice writes a `grow.<stage>`
-  channel per stage, 0 to 1, and holds 1 once the stage is done, so the finished tree stays up for
-  the rest of the loop. The tree reveals a stage's nodes by `born` (arc length, so growth spreads
-  outward) or, in turtle mode, by module order.
+  one before it, instant kinds (the seed) taking none. How far each stage has grown, 0 to 1, is
+  read straight from its span rather than through the mix, and the loop's end counts as finished.
+  A still design loops over its growth alone; a moving one over `time.loop`, stretched to fit its
+  growth, holding the finished tree after it (2026-10-28). The tree reveals a stage's nodes in order
+  of `born` (arc length, so growth spreads outward), at an even count of nodes per second, or, in
+  turtle mode, by module order.
 - **Start times are absolute, not blits anchors** (2026-10-27): `Mix.project` cannot read back through
   anchored voices without a history tape, and a stack's starts are a sum of durations anyway.
 - **Animated params.** Any number param can carry a `motion`. Each motion is a looping voice on that
@@ -316,7 +318,7 @@ lab (2026-10-28).
 
 ## Lab
 
-Layout (2026-10-27, mockup B), a CSS grid inside the one instrument's body:
+Layout (2026-10-27, mockup B), a CSS grid inside the one instrument's body. Both sidebars resize with weasel's `ResizeHandle`, and their widths stay in local storage; labkit's menu bar is hidden for now (2026-10-28):
 
 | Area | Contents |
 |---|---|
