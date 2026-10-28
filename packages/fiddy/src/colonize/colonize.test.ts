@@ -4,7 +4,7 @@ import { aimed } from '../frame.js';
 import { grow } from '../grow.js';
 import { mulberry32 } from '../random.js';
 import { distance, dot, length, normalize, sub, type Vec3 } from '../vec.js';
-import { colonize, pipeRadii } from './colonize.js';
+import { colonize } from './colonize.js';
 import { scatter } from './envelope.js';
 
 const stage = (id: string, kind: string, params: Stage['params'] = {}): Stage => ({ id, kind, params, input: { from: [] } });
@@ -41,16 +41,6 @@ describe('colonize', () => {
     points.forEach((p, i) => {
       if (alive[i]) for (const n of nodes) expect(distance(p, n.pos)).toBeGreaterThanOrEqual(OPTS.kill);
     });
-  });
-
-  it('pipes radii so every branch is at least as thick as what it carries', () => {
-    const { nodes } = run();
-    const radii = pipeRadii(nodes, 0.05, 2);
-    nodes.forEach((n, i) => {
-      if (n.parent > 0) expect(radii[n.parent]!).toBeGreaterThanOrEqual(radii[i]! - 1e-12);
-      if (n.children === 0) expect(radii[i]).toBe(0.05);
-    });
-    expect(radii[1]!).toBeGreaterThan(10 * 0.05);
   });
 });
 

@@ -4,6 +4,7 @@ import { DEFAULT_MODULE_CAP } from '../lsystem/rewrite.js';
 import { interpret } from '../lsystem/turtle.js';
 import type { Rng } from '../random.js';
 import type { Bud } from '../skeleton.js';
+import { chosen, elongateParam, girthParam, pipeParam } from './maturation.js';
 import type { StageKind } from './types.js';
 
 const RAD = Math.PI / 180;
@@ -39,7 +40,11 @@ export const lsystem: StageKind = {
     { key: 'width', label: 'Width', type: 'number', default: 1, min: 0.01, max: 10, step: 0.01 },
     { key: 'thin', label: 'Thin (!)', type: 'number', default: 0.7, min: 0.05, max: 1, step: 0.01 },
     { key: 'cap', label: 'Module cap', type: 'number', default: DEFAULT_MODULE_CAP, min: 1000, max: 2_000_000, step: 1000 },
+    elongateParam,
+    girthParam,
+    pipeParam(2.5),
   ],
+  mature: chosen,
   apply({ stage, params, buds, nodes, polygons, rng }) {
     const p = lsystemParams(params);
     const stochastic = grammarOf(p.grammar).stochastic;

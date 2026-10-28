@@ -1,4 +1,4 @@
-import { animate, emptySkeleton, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
+import { animate, emptySkeleton, growSteps, pose, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
 import { PropertyRow, ResizeHandle, Select } from '@weasel-js/ui';
 import { type CSSProperties, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
@@ -14,10 +14,10 @@ import { TreeView } from './tree/TreeView';
 const TreeView3D = lazy(() => import('./tree/TreeView3D').then((m) => ({ default: m.TreeView3D })));
 import './Workspace.css';
 
-const lastSkeleton = (steps: readonly StageResult[]): Skeleton | null => {
+const lastGrown = (steps: readonly StageResult[]): Extract<StageResult, { raw: Skeleton }> | null => {
   for (let i = steps.length - 1; i >= 0; i--) {
     const s = steps[i]!;
-    if ('skeleton' in s) return s.skeleton;
+    if ('raw' in s) return s;
   }
   return null;
 };
@@ -76,11 +76,14 @@ export function Workspace() {
 
   const failed = shownSteps.some((s) => 'error' in s);
   const good = useRef<Skeleton | null>(null);
-  const current = failed ? null : lastSkeleton(shownSteps);
+  const grown = failed ? null : lastGrown(shownSteps);
+  const current = useMemo(
+    () => (grown ? pose(grown.raw, moment.design, moment.time, reveal === 'turtle' ? 'module' : 'born') : null),
+    [grown, moment, reveal],
+  );
   if (current) good.current = current;
   const skeleton = current ?? good.current ?? emptySkeleton();
-  const finished = lastSkeleton(steps) ?? skeleton;
-  const treeReveal = useMemo(() => ({ grown: moment.grown, mode: reveal }), [moment.grown, reveal]);
+  const finished = lastGrown(steps)?.skeleton ?? skeleton;
 
   const stage = design.stages.find((s) => s.id === selected) ?? design.stages.at(-1) ?? null;
 
@@ -119,10 +122,10 @@ export function Workspace() {
       <ResizeHandle className="fd-handle fd-handle--pipe" value={pipe.width} min={160} max={560} onInput={pipe.setWidth} onChange={pipe.save} ariaLabel="Resize pipeline" />
       <div className="fd-workspace-tree">
         {view === '2d' ? (
-          <TreeView skeleton={skeleton} fitTo={finished} reveal={treeReveal} selected={stage?.id ?? null} hover={hover} onHover={setHover} dimmed={failed} />
+          <TreeView skeleton={skeleton} fitTo={finished} selected={stage?.id ?? null} hover={hover} onHover={setHover} dimmed={failed} />
         ) : (
           <Suspense fallback={null}>
-            <TreeView3D skeleton={skeleton} fitTo={finished} reveal={treeReveal} name={state.preset || 'tree'} dimmed={failed} />
+            <TreeView3D skeleton={skeleton} fitTo={finished} name={state.preset || 'tree'} dimmed={failed} />
           </Suspense>
         )}
         <div className="fd-views" role="group" aria-label="View">

@@ -2,11 +2,14 @@ import { type Channel, keys, mix, type Patch, patch, sum, wave } from '@msb235/b
 import { type Design, type Stage, timingOf } from './design.js';
 import { KINDS } from './kinds/index.js';
 import type { Motion } from './motion.js';
+import { spansOf } from './spans.js';
 
-/** The design at one moment: every moving param fixed, and how far each stage has grown, 0–1. */
+/** The design at one moment: every moving param fixed, how far each stage has grown, 0–1, and the
+ *  seconds of growth so far, which `pose` ages the tree to. */
 export interface Moment {
   design: Design;
   grown: Record<string, number>;
+  time: number;
 }
 
 export interface Animator {
@@ -26,19 +29,6 @@ type Pose = Record<string, number>;
 
 const CLOCK = 'clock';
 const paramChannel = (stage: string, key: string) => `${stage}.${key}`;
-
-/** When each stage grows: one after another in stack order, `grow` seconds each, instant kinds
- *  taking none. Start times are absolute rather than blits anchors, so the mix reads back at
- *  any time without a history tape. */
-function spansOf(design: Design) {
-  const { grow } = timingOf(design);
-  let t = 0;
-  return design.stages.map((s) => {
-    const start = t;
-    t += KINDS[s.kind]?.instant ? 0 : grow;
-    return { stage: s.id, start, end: t };
-  });
-}
 
 function motionPatch(channel: string, motion: Motion, loopMs: number, kit: Record<string, Channel<number>>): Patch<string, Pose, unknown> {
   const own = { [channel]: kit[channel]! };
@@ -107,7 +97,7 @@ export function animate(design: Design): Animator {
       const grown: Record<string, number> = {};
       for (const s of spans) grown[s.stage] = s.end === s.start ? 1 : Math.min(1, Math.max(0, (t - s.start) / (s.end - s.start)));
       const clock = read(CLOCK) ?? 0;
-      return { design: { ...design, clock, stages: design.stages.map((s) => settle(s, read)) }, grown };
+      return { design: { ...design, clock, stages: design.stages.map((s) => settle(s, read)) }, grown, time: Math.min(t, grownAt) };
     },
   };
 }

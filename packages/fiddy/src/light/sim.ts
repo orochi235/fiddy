@@ -27,8 +27,8 @@ export interface LightOptions {
   length: number;
   /** Mean bud exposure below which a lateral branch is shed; 0 sheds nothing. */
   shed: number;
+  /** Every node's radius as it forms; the pipe model thickens them as they age. */
   width: number;
-  pipe: number;
   cap: number;
 }
 
@@ -160,24 +160,16 @@ export function growLight(incoming: readonly Bud[], nodes: TreeNode[], rng: Rng,
   return finish(incoming, mets, buds, nodes, o);
 }
 
-/** Pushes the live metamers as nodes, radii by the pipe model from the tips, and returns the tip buds. */
+/** Pushes the live metamers as nodes and returns the tip buds. */
 function finish(incoming: readonly Bud[], mets: readonly Metamer[], buds: readonly SimBud[], nodes: TreeNode[], o: LightOptions): Bud[] {
   const M = mets.length;
-  const radius = new Float64Array(M);
-  const sum = new Float64Array(M);
-  for (let i = M - 1; i >= 0; i--) {
-    const m = mets[i]!;
-    if (m.dead) continue;
-    radius[i] = sum[i]! > 0 ? sum[i]! ** (1 / o.pipe) : o.width;
-    if (m.parent >= 0) sum[m.parent]! += radius[i]! ** o.pipe;
-  }
   const id = new Int32Array(M).fill(-1);
   const nodeOf = (local: number, tree: number) => (local >= 0 ? id[local]! : incoming[tree]!.node);
   mets.forEach((m, i) => {
     if (m.dead) return;
     id[i] = nodes.length;
     const parent = m.parent >= 0 ? id[m.parent]! : incoming[-1 - m.parent]!.node;
-    nodes.push({ id: id[i]!, parent, pos: m.pos, radius: radius[i]!, order: m.order, stage: o.stage, born: m.born });
+    nodes.push({ id: id[i]!, parent, pos: m.pos, radius: o.width, order: m.order, stage: o.stage, born: m.born });
   });
   const tips = buds.filter((b) => b.tip && !b.dead);
   const most = tips.reduce((a, b) => Math.max(a, b.v), 0);

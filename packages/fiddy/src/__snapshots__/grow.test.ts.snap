@@ -1,45 +1,45 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`presets > Colonized grows, and its skeleton is unchanged 1`] = `"bf0476ba"`;
+exports[`presets > Colonized grows, and its skeleton is unchanged 1`] = `"647cfc1e"`;
 
-exports[`presets > Colonized on an L-system grows, and its skeleton is unchanged 1`] = `"e14c988b"`;
+exports[`presets > Colonized on an L-system grows, and its skeleton is unchanged 1`] = `"99d63a50"`;
 
-exports[`presets > Colonized, conifer grows, and its skeleton is unchanged 1`] = `"e08da036"`;
+exports[`presets > Colonized, conifer grows, and its skeleton is unchanged 1`] = `"22d61ebc"`;
 
-exports[`presets > Fig. 1.24a grows, and its skeleton is unchanged 1`] = `"82934f7e"`;
+exports[`presets > Fig. 1.24a grows, and its skeleton is unchanged 1`] = `"39f58127"`;
 
-exports[`presets > Fig. 1.24b grows, and its skeleton is unchanged 1`] = `"04ed3d73"`;
+exports[`presets > Fig. 1.24b grows, and its skeleton is unchanged 1`] = `"5d440af6"`;
 
-exports[`presets > Fig. 1.24c grows, and its skeleton is unchanged 1`] = `"430becef"`;
+exports[`presets > Fig. 1.24c grows, and its skeleton is unchanged 1`] = `"ec83c2e5"`;
 
-exports[`presets > Fig. 1.24d grows, and its skeleton is unchanged 1`] = `"65ab1c69"`;
+exports[`presets > Fig. 1.24d grows, and its skeleton is unchanged 1`] = `"c0a9dc0b"`;
 
-exports[`presets > Fig. 1.24d, in wind grows, and its skeleton is unchanged 1`] = `"6959f703"`;
+exports[`presets > Fig. 1.24d, in wind grows, and its skeleton is unchanged 1`] = `"cbaf35a4"`;
 
-exports[`presets > Fig. 1.24e grows, and its skeleton is unchanged 1`] = `"e375bc6d"`;
+exports[`presets > Fig. 1.24e grows, and its skeleton is unchanged 1`] = `"d716715b"`;
 
-exports[`presets > Fig. 1.24f grows, and its skeleton is unchanged 1`] = `"404a9d16"`;
+exports[`presets > Fig. 1.24f grows, and its skeleton is unchanged 1`] = `"62b347c6"`;
 
-exports[`presets > Fig. 1.25 grows, and its skeleton is unchanged 1`] = `"106e684f"`;
+exports[`presets > Fig. 1.25 grows, and its skeleton is unchanged 1`] = `"0d65ed7d"`;
 
-exports[`presets > Fig. 1.27 grows, and its skeleton is unchanged 1`] = `"22431034"`;
+exports[`presets > Fig. 1.27 grows, and its skeleton is unchanged 1`] = `"c4c93a78"`;
 
-exports[`presets > Fig. 1.31a grows, and its skeleton is unchanged 1`] = `"c6d31790"`;
+exports[`presets > Fig. 1.31a grows, and its skeleton is unchanged 1`] = `"d350d3f7"`;
 
-exports[`presets > Fig. 2.6, monopodial grows, and its skeleton is unchanged 1`] = `"a3342542"`;
+exports[`presets > Fig. 2.6, monopodial grows, and its skeleton is unchanged 1`] = `"21792b98"`;
 
-exports[`presets > Fig. 2.7, sympodial grows, and its skeleton is unchanged 1`] = `"4e57e837"`;
+exports[`presets > Fig. 2.7, sympodial grows, and its skeleton is unchanged 1`] = `"72d042be"`;
 
-exports[`presets > Fig. 2.8, ternary grows, and its skeleton is unchanged 1`] = `"c9fd8189"`;
+exports[`presets > Fig. 2.8, ternary grows, and its skeleton is unchanged 1`] = `"7a109bfe"`;
 
-exports[`presets > Grafted grows, and its skeleton is unchanged 1`] = `"e73b0728"`;
+exports[`presets > Grafted grows, and its skeleton is unchanged 1`] = `"13719e3c"`;
 
-exports[`presets > Grafted, wild grows, and its skeleton is unchanged 1`] = `"5912e1f6"`;
+exports[`presets > Grafted, wild grows, and its skeleton is unchanged 1`] = `"498702ed"`;
 
-exports[`presets > Light competition grows, and its skeleton is unchanged 1`] = `"2bdb622f"`;
+exports[`presets > Light competition grows, and its skeleton is unchanged 1`] = `"c2f72288"`;
 
-exports[`presets > Two trees, shading grows, and its skeleton is unchanged 1`] = `"c2e10eb4"`;
+exports[`presets > Two trees, shading grows, and its skeleton is unchanged 1`] = `"e2186a2a"`;
 
-exports[`presets > Weber–Penn grows, and its skeleton is unchanged 1`] = `"dd9b49b6"`;
+exports[`presets > Weber–Penn grows, and its skeleton is unchanged 1`] = `"a32e8f73"`;
 
-exports[`presets > Weber–Penn, L-system twigs grows, and its skeleton is unchanged 1`] = `"0c23d95a"`;
+exports[`presets > Weber–Penn, L-system twigs grows, and its skeleton is unchanged 1`] = `"a74dd81f"`;

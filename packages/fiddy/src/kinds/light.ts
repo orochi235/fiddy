@@ -1,4 +1,5 @@
 import { growLight } from '../light/sim.js';
+import { elongateParam, pipeParam, piped } from './maturation.js';
 import type { StageKind } from './types.js';
 
 const RAD = Math.PI / 180;
@@ -25,9 +26,11 @@ export const light: StageKind = {
     { key: 'length', label: 'Metamer length', type: 'number', default: 1, min: 0.05, max: 10, step: 0.05 },
     { key: 'shed', label: 'Shed below', type: 'number', default: 0, min: 0, max: 1, step: 0.01 },
     { key: 'width', label: 'Tip width', type: 'number', default: 0.15, min: 0.01, max: 2, step: 0.01 },
-    { key: 'pipe', label: 'Pipe exponent', type: 'number', default: 2.5, min: 1, max: 4, step: 0.05 },
+    pipeParam(2.5),
+    elongateParam,
     { key: 'cap', label: 'Node cap', type: 'number', default: 4000, min: 100, max: 50_000, step: 100 },
   ],
+  mature: piped,
   apply({ stage, params, buds, nodes, rng }) {
     const n = (k: string) => params[k] as number;
     return growLight(buds, nodes, rng, {
@@ -47,7 +50,6 @@ export const light: StageKind = {
       length: n('length'),
       shed: n('shed'),
       width: n('width'),
-      pipe: n('pipe'),
       cap: Math.round(n('cap')),
     });
   },

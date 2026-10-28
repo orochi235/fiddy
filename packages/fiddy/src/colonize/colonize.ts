@@ -127,16 +127,3 @@ export function colonize(points: readonly Vec3[], roots: readonly Root[], o: Col
   }
   return { nodes, alive };
 }
-
-/** Radii by the pipe model: a tip gets `tip`, and a node's radius raised to `exponent` is the sum
- *  of its children's. Children must come after their parents. */
-export function pipeRadii(nodes: readonly Grown[], tip: number, exponent: number): number[] {
-  const sum = new Float64Array(nodes.length);
-  const radii = new Array<number>(nodes.length);
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    const n = nodes[i]!;
-    radii[i] = n.children === 0 ? tip : sum[i]! ** (1 / exponent);
-    if (n.parent >= 0) sum[n.parent] = sum[n.parent]! + radii[i]! ** exponent;
-  }
-  return radii;
-}

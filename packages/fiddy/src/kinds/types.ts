@@ -1,6 +1,7 @@
 import type { ParamValue, Stage } from '../design.js';
 import type { Rng } from '../random.js';
 import type { Bud, Polygon, TreeNode } from '../skeleton.js';
+import type { Maturation } from './maturation.js';
 
 export type ParamSpec =
   | {
@@ -46,5 +47,7 @@ export interface StageKind {
   clocked?: boolean;
   /** Works on the whole incoming tree: the selector is ignored and every bud is passed in. */
   whole?: boolean;
+  /** How its nodes mature after they form; they keep their length and radius when absent. */
+  mature?(params: Record<string, ParamValue>): Maturation;
   apply(ctx: StageContext): Bud[];
 }

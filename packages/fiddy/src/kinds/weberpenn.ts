@@ -2,6 +2,7 @@ import type { ParamValue } from '../design.js';
 import { type Frame, forward, roll, tidy, yaw } from '../frame.js';
 import type { Rng } from '../random.js';
 import type { Bud, TreeNode } from '../skeleton.js';
+import { chosen, elongateParam, girthParam, pipeParam } from './maturation.js';
 import type { ParamSpec, StageKind } from './types.js';
 
 const RAD = Math.PI / 180;
@@ -156,7 +157,11 @@ export const weberPenn: StageKind = {
     ...levelParams(1),
     ...levelParams(2),
     ...levelParams(3),
+    elongateParam,
+    girthParam,
+    pipeParam(2.5),
   ],
+  mature: chosen,
   apply({ stage, params, buds, nodes, rng }) {
     const p = weberPennParams(params);
     const g: Grower = { p, nodes, rng, stage: stage.id, out: [] };

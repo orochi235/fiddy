@@ -16,6 +16,7 @@ export { type Frame, UPRIGHT } from './frame.js';
 export { grow, growSteps, type StageResult } from './grow.js';
 export { KINDS, kindOf, paramsOf } from './kinds/index.js';
 export { derivationSeeds, lsystemParams } from './kinds/lsystem.js';
+export type { Maturation } from './kinds/maturation.js';
 export type { ParamSpec, StageContext, StageKind } from './kinds/types.js';
 export { generationsOf, grammarOf } from './lsystem/cache.js';
 export { type Expr } from './lsystem/expr.js';
@@ -24,8 +25,10 @@ export { DEFAULT_MODULE_CAP, derivations, derive, moduleString, moduleText, temp
 export { interpret, type TurtleOptions } from './lsystem/turtle.js';
 export { type Grammar, type Module, ModuleCapError, type ModuleTemplate, ParseError, type Pattern, type Rule } from './lsystem/types.js';
 export { EASES, type Ease, type KeysMotion, type Motion, newMotion, sanitizeMotion, WAVE_SHAPES, type WaveMotion, type WaveShape } from './motion.js';
+export { type Pace, pose } from './pose.js';
 export { PRESETS, type Preset } from './presets.js';
 export { hashString, mulberry32, type Rng, streamFor } from './random.js';
+export { type Span, spansOf } from './spans.js';
 export { type Bud, emptySkeleton, type Polygon, type Skeleton, skeletonHash, type TreeNode } from './skeleton.js';
 export type { Vec3 } from './vec.js';
 export { blow, type Wind } from './wind.js';
