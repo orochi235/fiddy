@@ -32,7 +32,7 @@ timeline (2026-10-27).
 | 4 | Parametric rules: numbers, conditions, expressions | 3 | built |
 | 5 | Context-sensitive rules | 4 | built |
 | 6 | Recursive parametric generator (Weber–Penn style) | 1 | built |
-| 7 | Space colonization | 1 | unbuilt |
+| 7 | Space colonization | 1 | built |
 | 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | unbuilt |
 | 9 | Light competition (Palubicki-style) | 1, ideally 8 | unbuilt |
 | 10 | Wind: a time-dependent bend on the finished skeleton, on the blits mix | 1 | unbuilt |
@@ -186,6 +186,31 @@ trunk along the bud's heading, then up to three levels of branches. Each stem is
 - **`StageKind.brief`** names the params a pipeline box shows, since a box listing every number param
   would run to twenty rows; the L-system's `n` and `δ` moved there from a special case in the lab
   (2026-10-28).
+
+## Space colonization
+
+Piece 7, the `colonize` kind (Runions, Lane and Prusinkiewicz 2007, "Modeling Trees with a Space
+Colonization Algorithm"). Attraction points fill a crown; each iteration every point pulls on its
+nearest node within the influence distance, each pulled node grows one step along the mean direction
+to its points, and points within the kill distance of a node are removed. It stops when no points
+remain, nothing grows, or at the iteration cap. The algorithm is in `src/colonize/`.
+
+- **The crown sits on the buds' mean heading** (2026-10-28): its axis is the mean of the selected
+  buds' headings, its base `gap` beyond their mean position along it. Shapes are `ellipsoid`, `cone`
+  (widest at the base), and `cylinder`, `width` across and `height` along the axis.
+- **Only the selected buds' nodes take part** (2026-10-28), not the rest of the incoming tree, so an
+  earlier stage's trunk neither attracts nor kills points.
+- **A trunk phase** (2026-10-28): while no point is in reach of anything grown from a bud, that bud
+  grows straight along its heading, at most as far as the crown's far side.
+- **`born` is the iteration** that grew a node (2026-10-28), so playback follows the simulation.
+- **A node's first child keeps its order; each later child is one more** (2026-10-28).
+- **Radii follow the pipe model** (2026-10-28): tips get `tip`, and a node's radius to the `pipe`
+  exponent is the sum of its children's. Only the stage's own nodes are sized, so a crown on an
+  L-system trunk does not thicken that trunk.
+- A node that would grow onto one of its existing children is skipped instead (2026-10-28), so two
+  points balanced either side of a node stall it rather than piling up duplicate nodes.
+- Neighbor search is a uniform grid of the points, cell side the influence distance; each new node
+  updates the nearest-node record of the points around it (2026-10-28). The presets grow in 15–25 ms.
 
 ## Timing
 

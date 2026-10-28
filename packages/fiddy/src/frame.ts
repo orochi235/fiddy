@@ -52,3 +52,11 @@ export function tidy(f: Frame): Frame {
   const up = normalize(cross(heading, f.left));
   return { pos: f.pos, heading, left: cross(up, heading), up };
 }
+
+/** A frame at `pos` heading along `heading`, its left as near `left` as the heading allows. */
+export function aimed(pos: Vec3, heading: Vec3, left: Vec3): Frame {
+  const h = normalize(heading);
+  let l = left;
+  if (length(cross(h, l)) < 1e-9) l = length(cross(h, [0, 0, 1])) < 1e-9 ? [-1, 0, 0] : cross([0, 0, 1], h);
+  return tidy({ pos, heading: h, left: l, up: [0, 0, 1] });
+}

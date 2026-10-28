@@ -15,6 +15,13 @@ function lsystem(id: string, grammar: string, n: number, delta: number, more: St
 
 const weberPenn = (id: string, params: Stage['params']): Stage => ({ id, kind: 'weberpenn', params, input: { from: [] } });
 
+const colonize = (id: string, params: Stage['params'], select?: Stage['input']['select']): Stage => ({
+  id,
+  kind: 'colonize',
+  params,
+  input: { from: [], ...(select ? { select } : {}) },
+});
+
 const one = (grammar: string, n: number, delta: number) => (): Design => ({
   seed: 1,
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
@@ -26,7 +33,7 @@ const param = (grammar: string, n: number, more: Stage['params']) => (): Design 
   stages: restack([seed(), lsystem('plant', grammar, n, 0, more)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 to 1.31 and chapter 2, Weber–Penn trees, and designs built on them. */
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 to 1.31 and chapter 2, Weber–Penn trees, space-colonized crowns, and designs built on them. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -115,6 +122,25 @@ export const PRESETS: readonly Preset[] = [
         seed(),
         weberPenn('limbs', { levels: 2, shape: 'spherical', length: 10, width: 0.6, branches1: 12, branches2: 5, rotate: 180, bend: 25 }),
         lsystem('twigs', 'ω: X\np1: X → F[+X][-X]FX\np2: F → FF', 3, 25.7, { step: 0.12, width: 0.05 }, { minOrder: 2 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Colonized',
+    design: () => ({ seed: 1, stages: restack([seed(), colonize('crown', {})]) }),
+  },
+  {
+    name: 'Colonized, conifer',
+    design: () => ({ seed: 1, stages: restack([seed(), colonize('crown', { shape: 'cone', width: 30, height: 60, gap: 4, points: 2500 })]) }),
+  },
+  {
+    name: 'Colonized on an L-system',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        seed(),
+        lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 2, 30, { step: 4, width: 2 }),
+        colonize('crown', { gap: 2, width: 50, height: 28 }, { minOrder: 2 }),
       ]),
     }),
   },
