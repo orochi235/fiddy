@@ -13,12 +13,15 @@ function lsystem(id: string, grammar: string, n: number, delta: number, more: St
   return { id, kind: 'lsystem', params: { grammar, n, delta, ...more }, input: { from: [], ...(select ? { select } : {}) } };
 }
 
+const light = (id: string, params: Stage['params'] = {}): Stage => ({ id, kind: 'light', params, input: { from: [] } });
+
 const one = (grammar: string, n: number, delta: number) => (): Design => ({
   seed: 1,
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, and designs built on them. */
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, designs built on them,
+ *  and trees grown by light competition. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -50,6 +53,21 @@ export const PRESETS: readonly Preset[] = [
         seed(),
         lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 3, 30, { step: 4, width: 2 }),
         lsystem('crown', 'ω: X\np1: X (.5) → F[+X][-X]FX\np2: X (.3) → F[+X]FX\np3: X (.2) → F[-X]FX\np4: F → FF', 4, 25.7, { width: 0.6 }, { minOrder: 2 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Light competition',
+    design: () => ({ seed: 1, stages: restack([seed(), light('tree')]) }),
+  },
+  {
+    name: 'Two trees, shading',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        { id: 'left', kind: 'seed', params: { x: -5 }, input: { from: [] } },
+        { id: 'right', kind: 'seed', params: { x: 5 }, input: { from: [] } },
+        light('trees'),
       ]),
     }),
   },

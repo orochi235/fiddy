@@ -34,7 +34,7 @@ timeline (2026-10-27).
 | 6 | Recursive parametric generator (Weber–Penn style) | 1 | unbuilt |
 | 7 | Space colonization | 1 | unbuilt |
 | 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | unbuilt |
-| 9 | Light competition (Palubicki-style) | 1, ideally 8 | unbuilt |
+| 9 | Light competition (Palubicki-style) | 1, ideally 8 | built |
 | 10 | Wind: a time-dependent bend on the finished skeleton, on the blits mix | 1 | unbuilt |
 
 Pieces 6 to 8 are independent of the L-system work and of each other.
@@ -139,6 +139,41 @@ starts from each selected bud's frame; bracket depth is branch order.
 
 **Derivation and interpretation are cached separately.** The derived string depends only on the
 grammar and `n`; an animated angle or step length reruns only the turtle.
+
+## Light competition
+
+Piece 9, the `light` stage kind (`kinds/light.ts`, simulation in `light/`): a simplified Palubicki et al.
+2009, *Self-organizing tree models for image synthesis*. Every selected bud grows its own tree, and all of
+them share one shadow grid, so two seeds side by side shade each other. Each growth cycle:
+
+1. Each bud's light `Q` is read from the shadow grid.
+2. `Q` is summed from the tips down; a tree's base gets `vigor × Q` of resource, handed back up by
+   Borchert–Honda: at each branching, in proportion to light, the main axis weighted by λ and each
+   lateral by 1 − λ.
+3. A bud grows ⌊share⌋ metamers, capped at `burst`, each one heading along a blend of its old heading,
+   the direction of least shade, the sky, gravity, and a random wander. Every new node gets a lateral
+   bud, rolled by the divergence angle from the last and turned out by the branch angle.
+
+Decisions:
+
+- **The shadow grid is sparse** (a `Map` keyed by voxel), its voxels one metamer long. A bud shades its
+  own voxel by `shadow` and a pyramid below it, fading linearly to nothing past `depth` layers, rather
+  than Palubicki's geometric falloff, so `depth` is where the shadow actually ends (2026-10-28).
+- **A bud's exposure leaves out its own shadow** and is capped at 1; the direction of best light is the
+  negative gradient of the grid at the bud, by central differences (2026-10-28).
+- **Gravity bends only lateral branches**, those of a higher order than the bud the tree grew from; the
+  sky weight (phototropism) bends every axis. The heading counts 1 against both (2026-10-28).
+- **`burst` caps metamers per bud per cycle.** Borchert–Honda with a high λ pours most of a large tree's
+  resource into the leader, which otherwise shoots up in one cycle (2026-10-28).
+- **Randomness is only the wander term**, drawn per metamer from the stage's stream; with wander 0 the
+  tree is the same for every seed (2026-10-28).
+- **Shedding** removes a lateral branch whose buds' mean exposure falls below `shed`, before resource is
+  handed out; 0 sheds nothing (2026-10-28).
+- **`born` is the growth cycle**, fractional along the metamers a bud grew in it, so playback grows
+  cycle by cycle. Radii follow the pipe model from `width` at the tips, exponent `pipe`. A returned bud's
+  `vigor` is its last share over the largest share any tip got (2026-10-28).
+- **A node cap** (default 4,000) stops growth, so a big cycle count stays interactive. The default preset
+  grows about 2,100 nodes in under 50 ms (2026-10-28).
 
 ## Timing
 
