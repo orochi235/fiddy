@@ -22,6 +22,8 @@ const colonize = (id: string, params: Stage['params'], select?: Stage['input']['
   input: { from: [], ...(select ? { select } : {}) },
 });
 
+const light = (id: string, params: Stage['params'] = {}): Stage => ({ id, kind: 'light', params, input: { from: [] } });
+
 const one = (grammar: string, n: number, delta: number) => (): Design => ({
   seed: 1,
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
@@ -33,7 +35,8 @@ const param = (grammar: string, n: number, more: Stage['params']) => (): Design 
   stages: restack([seed(), lsystem('plant', grammar, n, 0, more)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 to 1.31 and chapter 2, Weber–Penn trees, space-colonized crowns, and designs built on them. */
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 to 1.31 and chapter 2, Weber–Penn trees, space-colonized
+ *  crowns, trees grown by light competition, and designs built on them. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -141,6 +144,21 @@ export const PRESETS: readonly Preset[] = [
         seed(),
         lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 2, 30, { step: 4, width: 2 }),
         colonize('crown', { gap: 2, width: 50, height: 28 }, { minOrder: 2 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Light competition',
+    design: () => ({ seed: 1, stages: restack([seed(), light('tree')]) }),
+  },
+  {
+    name: 'Two trees, shading',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        { id: 'left', kind: 'seed', params: { x: -5 }, input: { from: [] } },
+        { id: 'right', kind: 'seed', params: { x: 5 }, input: { from: [] } },
+        light('trees'),
       ]),
     }),
   },

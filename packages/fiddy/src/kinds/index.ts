@@ -1,11 +1,12 @@
 import type { ParamValue, Stage } from '../design.js';
 import { colonizeKind } from './colonize.js';
+import { light } from './light.js';
 import { lsystem } from './lsystem.js';
 import { seed } from './seed.js';
 import { weberPenn } from './weberpenn.js';
 import type { StageKind } from './types.js';
 
-export const KINDS: Readonly<Record<string, StageKind>> = { seed, lsystem, weberpenn: weberPenn, colonize: colonizeKind };
+export const KINDS: Readonly<Record<string, StageKind>> = { seed, lsystem, weberpenn: weberPenn, colonize: colonizeKind, light };
 
 export function kindOf(kind: string): StageKind {
   const k = KINDS[kind];

@@ -32,6 +32,10 @@ exports[`presets > Grafted grows, and its skeleton is unchanged 1`] = `"e73b0728
 
 exports[`presets > Grafted, wild grows, and its skeleton is unchanged 1`] = `"5912e1f6"`;
 
+exports[`presets > Light competition grows, and its skeleton is unchanged 1`] = `"2bdb622f"`;
+
+exports[`presets > Two trees, shading grows, and its skeleton is unchanged 1`] = `"c2e10eb4"`;
+
 exports[`presets > Weber–Penn grows, and its skeleton is unchanged 1`] = `"dd9b49b6"`;
 
 exports[`presets > Weber–Penn, L-system twigs grows, and its skeleton is unchanged 1`] = `"0c23d95a"`;
