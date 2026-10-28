@@ -1,6 +1,6 @@
 # fiddy design
 
-**Status: every piece built (0–3 on 2026-10-27, 4–10 on 2026-10-28).** The lab waits on a weasel
+**Status: every piece built (0–3 on 2026-10-27, 4–11 on 2026-10-28).** The lab waits on a weasel
 release for its vertical rack (see Lab).
 
 fiddy generates trees, the arboreal kind: a JS library (`fiddy` on npm, free as of 2026-10-27) and a
@@ -36,6 +36,7 @@ timeline (2026-10-27).
 | 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | built |
 | 9 | Light competition (Palubicki-style) | 1, ideally 8 | built |
 | 10 | Wind: a time-dependent bend on the finished skeleton, on the blits mix | 1 | built |
+| 11 | Aging: elongation and pipe-model thickening, posed at any moment of growth | 1 | built |
 
 Pieces 6 to 8 are independent of the L-system work and of each other.
 
@@ -70,7 +71,8 @@ interface Stage {
 interface Design { seed: number; stages: Stage[] }
 
 grow(design: Design): Skeleton
-growSteps(design: Design): { stage: string; skeleton: Skeleton }[]
+growSteps(design: Design): { stage: string; skeleton: Skeleton; raw: Skeleton }[]
+pose(raw: Skeleton, design: Design, seconds: number, pace?: 'born' | 'module'): Skeleton
 animate(design: Design): { moving: boolean; at(seconds: number): Design }
 ```
 
@@ -210,9 +212,9 @@ remain, nothing grows, or at the iteration cap. The algorithm is in `src/coloniz
   grows straight along its heading, at most as far as the crown's far side.
 - **`born` is the iteration** that grew a node (2026-10-28), so playback follows the simulation.
 - **A node's first child keeps its order; each later child is one more** (2026-10-28).
-- **Radii follow the pipe model** (2026-10-28): tips get `tip`, and a node's radius to the `pipe`
-  exponent is the sum of its children's. Only the stage's own nodes are sized, so a crown on an
-  L-system trunk does not thicken that trunk.
+- **Radii follow the pipe model, as they age** (2026-10-28): nodes are made at `tip`, and `pose`
+  thickens them by the `pipe` exponent (see Aging). A crown thickens the trunk it grows on only when
+  that trunk's own stage thickens by the pipe model.
 - A node that would grow onto one of its existing children is skipped instead (2026-10-28), so two
   points balanced either side of a node stall it rather than piling up duplicate nodes.
 - Neighbor search is a uniform grid of the points, cell side the influence distance; each new node
@@ -248,7 +250,7 @@ Decisions:
 - **Shedding** removes a lateral branch whose buds' mean exposure falls below `shed`, before resource is
   handed out; 0 sheds nothing (2026-10-28).
 - **`born` is the growth cycle**, fractional along the metamers a bud grew in it, so playback grows
-  cycle by cycle. Radii follow the pipe model from `width` at the tips, exponent `pipe`. A returned bud's
+  cycle by cycle. Nodes are made at `width`, and `pose` thickens them by the pipe model, exponent `pipe`. A returned bud's
   `vigor` is its last share over the largest share any tip got (2026-10-28).
 - **A node cap** (default 4,000) stops growth, so a big cycle count stays interactive. The default preset
   grows about 2,100 nodes in under 50 ms (2026-10-28).
@@ -279,15 +281,47 @@ blits is in from the start (2026-10-27):
   one before it, instant kinds (the seed) taking none. How far each stage has grown, 0 to 1, is
   read straight from its span rather than through the mix, and the loop's end counts as finished.
   A still design loops over its growth alone; a moving one over `time.loop`, stretched to fit its
-  growth, holding the finished tree after it (2026-10-28). The tree reveals a stage's nodes in order
-  of `born` (arc length, so growth spreads outward), at an even count of nodes per second, or, in
-  turtle mode, by module order.
+  growth, holding the finished tree after it (2026-10-28). The tree shown at a moment is the full-size skeleton posed
+  at that time (see Aging): a stage's nodes form in order of `born` (arc length, so growth spreads
+  outward), at an even count of nodes per second, or, in turtle mode, by module order.
 - **Start times are absolute, not blits anchors** (2026-10-27): `Mix.project` cannot read back through
   anchored voices without a history tape, and a stack's starts are a sum of durations anyway.
 - **Animated params.** Any number param can carry a `motion`. Each motion is a looping voice on that
   param's channel, set up as agnew's `animate.ts` does it.
 - **Scrubbing** reaches an earlier time by wrapping forward to the same point in a later pass of the
   loop, as agnew does, so going backward is exact without a history tape.
+
+## Aging
+
+Piece 11 (2026-10-28). Stages grow a tree at full size; `pose(raw, design, seconds)` gives the tree
+as it stands at a moment of growth, on the one clock playback uses (`spansOf`: each stage `time.grow`
+seconds, in stack order). `growSteps` returns both, each stage's `skeleton` posed at its own end and
+`raw` for later stages to grow from; `grow` returns the pose at the end of growth, so a finished tree
+carries its age gradient, young tips and all. The lab draws `pose` in the 2D and 3D views, and the
+pipeline previews show each stage's posed tree.
+
+- **Formation.** The growth front passes a stage's nodes in order of `born` (or module, in turtle
+  mode), an even count per second through its span. Nodes tied in that order, such as one colonize
+  iteration's, form together once the front has passed them all (2026-10-28).
+- **Elongation.** An internode starts when the front reaches its parent, or when its stage starts,
+  and reaches full length `elongate` × `time.grow` after the front reaches its own node, growing
+  linearly; everything beyond it rides along, unturned. At 0 it is drawn whole as the front passes,
+  which is how the lab revealed growth before (2026-10-28). It is a share of a stage's time rather
+  than seconds, so the finished tree does not change with playback speed.
+- **Girth.** A stage either keeps the radii its kind draws (`drawn`) or thickens by the pipe model:
+  a node's radius to the stage's `pipe` exponent is the sum of its grown children's, of any stage,
+  never below the radius it was made with. Evaluated at the moment, a branch thickens as its own
+  crown fills in (2026-10-28).
+- **Per kind** (2026-10-28): colonize and light always use the pipe model, their tip width the radius
+  every node is made with. The L-system and Weber–Penn choose with `girth`, `drawn` by default, so
+  `!` widths and Weber–Penn's taper stand unless asked; under `pipe` those widths become the floor
+  the pipe model thickens from. The seed and wind do not age. Every growing kind has `elongate`,
+  default 0.1.
+- **Polygons grow with their node's internode**, scaled about it; buds move with their node.
+- **Past the end of growth** the tree holds its finished pose; it does not keep aging through a
+  moving design's held loop.
+- **The presets' hashes all changed** with this piece (2026-10-28). With `elongate` 0 every one
+  matches its old hash, the pipe model included, so the change is only the young tips.
 
 ## Wind
 
@@ -306,7 +340,9 @@ lab (2026-10-28).
   length it carries, over its girth to the flex exponent; girth is radius times √(length carried), the
   pipe model, so an L-system drawn at one radius still stiffens toward the root. Shares are scaled so
   the most pliant chain sums to 1, which makes `strength` the lean of the most pliant tip at the top of
-  a gust (2026-10-28).
+  a gust (2026-10-28). It bends the full-size tree, so it reads the radii nodes were made with, not
+  their aged ones; positions still pose exactly, since aging scales each segment and wind turns it
+  (2026-10-28).
 - **Gusts, sway, and turbulence come in whole cycles per loop**, as a wave motion's `cycles` do, so the
   wind meets itself where the loop wraps. Gusts lower the whole tree's push by up to `gustiness`; each
   branch (a run of nodes at one order) sways on its own phase, with a flutter at three times the sway
