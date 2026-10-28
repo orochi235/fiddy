@@ -12,7 +12,8 @@ export interface Moment {
 export interface Animator {
   /** Whether the design changes over the loop: a param moves, or a stage follows the clock. */
   readonly moving: boolean;
-  /** Seconds one loop lasts. */
+  /** Seconds one loop lasts: the growth alone for a still design, else the design's loop or its
+   *  growth, whichever is longer. */
   readonly loop: number;
   /** When each stage grows, in seconds into the loop. */
   readonly spans: readonly { stage: string; start: number; end: number }[];
@@ -24,7 +25,6 @@ const SUBJECT = 'design';
 type Pose = Record<string, number>;
 
 const CLOCK = 'clock';
-const growChannel = (stage: string) => `grow.${stage}`;
 const paramChannel = (stage: string, key: string) => `${stage}.${key}`;
 
 /** When each stage grows: one after another in stack order, `grow` seconds each, instant kinds
@@ -53,12 +53,10 @@ function motionPatch(channel: string, motion: Motion, loopMs: number, kit: Recor
   return wave<string, Pose>(loopMs, { shape, cycles, phase, depth: { [channel]: depth }, kit: own });
 }
 
-/** One blits mix over the design's timeline: a looping voice that grows each stage in turn and
- *  holds the finished tree, a looping voice per param motion, and the loop's clock. A wave adds
- *  to the set value; keys replace it. */
+/** The design's timeline: each stage grows in turn, read straight from its span, over one blits
+ *  mix holding a looping voice per param motion and the loop's clock. A wave adds to the set
+ *  value; keys replace it. */
 export function animate(design: Design): Animator {
-  const { loop } = timingOf(design);
-  const loopMs = loop * 1000;
   const spans = spansOf(design);
   const movers = design.stages.flatMap((s) =>
     Object.entries(s.motion ?? {})
@@ -66,23 +64,18 @@ export function animate(design: Design): Animator {
       .map(([key, motion]) => ({ channel: paramChannel(s.id, key), motion })),
   );
 
+  const moving = movers.length > 0 || design.stages.some((s) => KINDS[s.kind]?.clocked);
+  // A still design's loop is its growth, so playback and the scrubber hold no dead time; a moving
+  // one's is the set loop, stretched to fit its growth.
+  const grownAt = spans.at(-1)?.end ?? 0;
+  const loop = moving || grownAt === 0 ? Math.max(timingOf(design).loop, grownAt) : grownAt;
+  const loopMs = loop * 1000;
+
   const kit: Record<string, Channel<number>> = {};
-  for (const s of spans) kit[growChannel(s.stage)] = sum();
   for (const m of movers) kit[m.channel] = sum();
   kit[CLOCK] = sum();
   const timeline = mix<string, Pose>(kit);
 
-  const growth = patch<string, Pose>(
-    loopMs,
-    (phase) => {
-      const t = phase * loop;
-      const out: Pose = {};
-      for (const s of spans) out[growChannel(s.stage)] = s.end === s.start ? 1 : Math.min(1, Math.max(0, (t - s.start) / (s.end - s.start)));
-      return out;
-    },
-    { writes: spans.map((s) => growChannel(s.stage)) },
-  );
-  timeline.cue({ patch: growth, loop: true, start: 0 });
   timeline.cue({ patch: patch<string, Pose>(loopMs, (phase) => ({ [CLOCK]: phase }), { writes: [CLOCK] }), loop: true, start: 0 });
   for (const m of movers) timeline.cue({ patch: motionPatch(m.channel, m.motion, loopMs, kit), loop: true, start: 0 });
 
@@ -92,7 +85,7 @@ export function animate(design: Design): Animator {
   let last = -1;
   const pose: Pose = {};
   return {
-    moving: movers.length > 0 || design.stages.some((s) => KINDS[s.kind]?.clocked),
+    moving,
     loop,
     spans,
     at(seconds) {
@@ -109,8 +102,10 @@ export function animate(design: Design): Animator {
         const v = pose[channel];
         return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
       };
+      // The end of a loop is the finished tree, not the start of the next.
+      const t = seconds > 0 && into === 0 ? loop : into / 1000;
       const grown: Record<string, number> = {};
-      for (const s of spans) grown[s.stage] = read(growChannel(s.stage)) ?? 1;
+      for (const s of spans) grown[s.stage] = s.end === s.start ? 1 : Math.min(1, Math.max(0, (t - s.start) / (s.end - s.start)));
       const clock = read(CLOCK) ?? 0;
       return { design: { ...design, clock, stages: design.stages.map((s) => settle(s, read)) }, grown };
     },

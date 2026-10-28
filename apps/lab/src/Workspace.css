@@ -1,8 +1,8 @@
 .fd-workspace {
   display: grid;
   grid-template:
-    'pipe tree inspector' minmax(0, 1fr)
-    'time time time' auto / 240px minmax(0, 1fr) 340px;
+    'pipe h1 tree h2 inspector' minmax(0, 1fr)
+    'time time time time time' auto / var(--fd-pipe) auto minmax(0, 1fr) auto var(--fd-inspector);
   width: 100%;
   height: 100%;
   background: var(--fd-ground);
@@ -14,8 +14,15 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-right: 1px solid var(--fd-line);
   background: var(--fd-pane);
+}
+
+.fd-handle--pipe {
+  grid-area: h1;
+}
+
+.fd-handle--inspector {
+  grid-area: h2;
 }
 
 .fd-workspace-tree {
@@ -74,4 +81,8 @@
 .fd-views button[aria-pressed='true'] {
   color: var(--fd-ink);
   background: var(--fd-ground);
+}
+
+.fd-handle {
+  border-left-color: var(--fd-line);
 }

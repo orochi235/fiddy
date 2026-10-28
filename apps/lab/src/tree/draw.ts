@@ -38,15 +38,16 @@ export function fitOf(nodes: readonly TreeNode[], width: number, height: number,
   return { scale, ox: width / 2 - ((x0 + x1) / 2) * scale, oy: height / 2 + ((y0 + y1) / 2) * scale };
 }
 
-/** Per stage, the furthest `born` and the last `module` any node reached. */
+/** Per stage, every node's `born` in order, and the last `module` any node reached. */
 function extentsOf(nodes: readonly TreeNode[]) {
-  const out = new Map<string, { born: number; module: number }>();
+  const out = new Map<string, { borns: number[]; module: number }>();
   for (const n of nodes) {
-    const e = out.get(n.stage) ?? { born: 0, module: 0 };
-    e.born = Math.max(e.born, n.born);
+    const e = out.get(n.stage) ?? { borns: [], module: 0 };
+    e.borns.push(n.born);
     e.module = Math.max(e.module, n.module ?? 0);
     out.set(n.stage, e);
   }
+  for (const e of out.values()) e.borns.sort((x, y) => x - y);
   return out;
 }
 
@@ -65,7 +66,11 @@ export function shown(n: TreeNode, parent: TreeNode | undefined, reveal: Reveal 
   if (g <= 0) return 0;
   const e = ext.get(n.stage)!;
   if (reveal.mode === 'turtle') return (n.module ?? 0) <= g * e.module ? 1 : 0;
-  const front = g * e.born;
+  // The front advances through the nodes in arc-length order at an even count per second, so a
+  // tree whose tips lie far out does not stand as a bare stalk for most of its growth.
+  const at = g * (e.borns.length - 1);
+  const lo = e.borns[Math.floor(at)]!;
+  const front = lo + (e.borns[Math.ceil(at)]! - lo) * (at % 1);
   if (n.born <= front) return 1;
   const from = parent && parent.stage === n.stage ? parent.born : 0;
   return front > from ? (front - from) / (n.born - from) : 0;

@@ -1,6 +1,8 @@
 import { animate, emptySkeleton, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { ResizeHandle } from '@weasel-js/ui';
+import { type CSSProperties, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
+import { usePaneWidth } from './paneWidth';
 import { Pipeline } from './pipeline/Pipeline';
 import { editStage, useFiddy, withStages } from './session';
 import { presetState, writeHash } from './state';
@@ -26,7 +28,7 @@ function freshId(stages: readonly Stage[], kind: string): string {
 }
 
 /** Layout B: the pipeline down the left, the tree in the middle, the selected stage's inspector
- *  on the right, and the transport along the bottom. */
+ *  on the right, each sidebar resizable, and the transport along the bottom. */
 export function Workspace() {
   const { state, setState } = useFiddy();
   const { design } = state;
@@ -35,6 +37,8 @@ export function Workspace() {
   const [reveal, setReveal] = useState<RevealMode>('grow');
   const [playing, setPlaying] = useState(false);
   const [view, setView] = useState<'2d' | '3d'>('2d');
+  const pipe = usePaneWidth('pipe', 240);
+  const inspector = usePaneWidth('inspector', 340);
 
   const animator = useMemo(() => animate(design), [design]);
   const grownBy = (a: typeof animator) => a.spans.at(-1)?.end ?? 0;
@@ -93,7 +97,8 @@ export function Workspace() {
   };
 
   return (
-    <div className="fd-workspace">
+    // The sidebar widths change on every drag sample, so they reach the grid as custom properties.
+    <div className="fd-workspace" style={{ '--fd-pipe': `${pipe.width}px`, '--fd-inspector': `${inspector.width}px` } as CSSProperties}>
       <div className="fd-workspace-pipe">
         <label className="fd-preset">
           <span>Preset</span>
@@ -114,6 +119,7 @@ export function Workspace() {
           onStages={(stages) => setState((s) => withStages(s, stages))}
         />
       </div>
+      <ResizeHandle className="fd-handle fd-handle--pipe" value={pipe.width} min={160} max={560} onInput={pipe.setWidth} onChange={pipe.save} ariaLabel="Resize pipeline" />
       <div className="fd-workspace-tree">
         {view === '2d' ? (
           <TreeView skeleton={skeleton} fitTo={finished} reveal={treeReveal} selected={stage?.id ?? null} hover={hover} onHover={setHover} dimmed={failed} />
@@ -130,6 +136,7 @@ export function Workspace() {
           ))}
         </div>
       </div>
+      <ResizeHandle className="fd-handle fd-handle--inspector" value={inspector.width} min={240} max={720} invert onInput={inspector.setWidth} onChange={inspector.save} ariaLabel="Resize inspector" />
       <div className="fd-workspace-inspector">
         <Inspector
           stage={stage}

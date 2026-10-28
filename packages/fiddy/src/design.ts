@@ -31,7 +31,8 @@ export interface Stage {
 export interface Timing {
   /** Seconds each stage takes to grow in playback. */
   grow: number;
-  /** Seconds one loop of the design lasts: growth, then the finished tree, and every motion. */
+  /** Seconds one loop of a moving design lasts: growth, then the finished tree, and every motion.
+   *  A still design loops over its growth alone. */
   loop: number;
 }
 

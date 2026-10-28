@@ -4,7 +4,7 @@ import { initialState } from './state';
 import { Workspace } from './Workspace';
 
 /** One design and its views. The design opens from the URL hash, which the workspace keeps
- *  current, so the lab persists nothing of its own. */
+ *  current, so the lab stores no design of its own; only sidebar widths go to local storage. */
 export const fiddyInstrument = defineInstrument<FiddyState, Record<string, never>>({
   name: 'fiddy',
   defaultConfig: () => ({}),

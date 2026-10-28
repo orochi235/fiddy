@@ -3,7 +3,6 @@
   overflow: auto;
   box-sizing: border-box;
   padding: 10px 12px;
-  border-left: 1px solid var(--fd-line);
   background: var(--fd-pane);
 }
 

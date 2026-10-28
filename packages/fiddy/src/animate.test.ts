@@ -27,6 +27,19 @@ describe('animate', () => {
     expect(a.at(9).grown).toEqual({ seed: 1, a: 1, b: 1 });
   });
 
+  it('loops a still design over its growth alone, its end showing the finished tree', () => {
+    const d = design();
+    const still = animate({ ...d, stages: d.stages.map(({ motion: _, ...s }) => s) });
+    expect(still.moving).toBe(false);
+    expect(still.loop).toBe(4);
+    expect(still.at(4).grown).toEqual({ seed: 1, a: 1, b: 1 });
+    expect(still.at(5).grown.a).toBeCloseTo(0.5, 6);
+  });
+
+  it("stretches a moving design's loop to fit its growth", () => {
+    expect(animate({ ...design(), time: { grow: 6, loop: 10 } }).loop).toBe(12);
+  });
+
   it('swings a wave around the set value', () => {
     const a = animate(design());
     expect(a.moving).toBe(true);
