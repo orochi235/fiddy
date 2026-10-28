@@ -75,9 +75,11 @@
 }
 
 .fd-choice {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 5.5em auto;
+  justify-items: start;
   align-items: center;
+  gap: 6px;
   margin: 4px 0;
 }
 

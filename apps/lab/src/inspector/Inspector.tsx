@@ -87,7 +87,8 @@ export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemov
             />
           ) : spec.type === 'choice' ? (
             <div key={spec.key} className="fd-choice">
-              <Select label={spec.label} orientation="row" width="fit" selectedKey={String(values[spec.key])} onSelectionChange={(v) => setParam(spec.key, v)} options={spec.options.map((o) => ({ value: o, label: o }))} />
+              <label className="fd-num-label" htmlFor={`fd-choice-${spec.key}`}>{spec.label}</label>
+              <Select aria-label={spec.label} triggerId={`fd-choice-${spec.key}`} width="fit" selectedKey={String(values[spec.key])} onSelectionChange={(v) => setParam(spec.key, v)} options={spec.options.map((o) => ({ value: o, label: o }))} />
             </div>
           ) : null,
         )}
