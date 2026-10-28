@@ -1,5 +1,5 @@
 import { animate, emptySkeleton, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
-import { ResizeHandle, Select } from '@weasel-js/ui';
+import { PropertyRow, ResizeHandle, Select } from '@weasel-js/ui';
 import { type CSSProperties, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
 import { usePaneWidth } from './paneWidth';
@@ -104,7 +104,9 @@ export function Workspace() {
     <div className="fd-workspace" style={{ '--fd-pipe': `${pipe.width}px`, '--fd-inspector': `${inspector.width}px` } as CSSProperties}>
       <div className="fd-workspace-pipe">
         <div className="fd-preset">
-          <Select label="Preset" orientation="horizontal" selectedKey={state.preset} onSelectionChange={(name) => name && setState(presetState(name))} options={presetOptions(state.preset)} />
+          <PropertyRow label="Preset" layout="inline" htmlFor="fd-preset">
+            <Select aria-label="Preset" triggerId="fd-preset" selectedKey={state.preset} onSelectionChange={(name) => name && setState(presetState(name))} options={presetOptions(state.preset)} />
+          </PropertyRow>
         </div>
         <Pipeline
           design={design}

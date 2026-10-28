@@ -42,16 +42,8 @@
 }
 
 .fd-preset {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 8px 10px;
   border-bottom: 1px solid var(--fd-line);
-  color: var(--fd-muted);
-}
-
-.fd-preset > * {
-  flex: 1;
 }
 
 .fd-views {

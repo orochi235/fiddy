@@ -18,7 +18,7 @@ export async function serve() {
 }
 
 /** Opens the lab's preset menu, a kit Select whose list lives in a popover. */
-const openPresets = (page) => page.locator('.fd-preset button').first().click();
+const openPresets = (page) => page.locator('#fd-preset').click();
 
 /** The presets the lab offers, by name. */
 export async function presetNames(page) {
