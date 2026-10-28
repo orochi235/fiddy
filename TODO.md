@@ -8,3 +8,6 @@
 - **Hide `Pipe exponent` while `Girth` is `drawn`** (2026-10-28). The L-system and Weber–Penn
   inspectors show it under both choices, though only `pipe` reads it; a param spec has no way yet to
   show itself only when another param holds a given value.
+- **Merge the `pipeline-fit` branch after weasel's next release** (2026-10-28). It passes
+  `maxScale`, `bounded`, and `refit="always"` to the pipeline's `EffectEditor`. Those props are on
+  weasel `main` but aren't published yet, so fiddy's typecheck rejects them until a release.
