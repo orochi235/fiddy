@@ -1,4 +1,5 @@
 import { KINDS, lsystemParams, type Motion, paramsOf, type Selector, type Stage, takeDefines } from 'fiddy';
+import { MenuButton, Select } from '@weasel-js/ui';
 import type { Hover } from '../tree/draw';
 import { GrammarPanel } from './GrammarPanel';
 import { NumberField } from './NumberField';
@@ -14,6 +15,8 @@ interface Props {
   onAdd: (kind: string) => void;
   onRemove: () => void;
 }
+
+const KIND_ITEMS = Object.values(KINDS).map((k) => ({ value: k.kind, label: k.title }));
 
 const SELECTOR_FIELDS: readonly { key: keyof Selector; label: string; step: number }[] = [
   { key: 'minOrder', label: 'order ≥', step: 1 },
@@ -83,16 +86,9 @@ export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemov
               onMotion={(m) => setMotion(spec.key, m)}
             />
           ) : spec.type === 'choice' ? (
-            <label key={spec.key} className="fd-choice">
-              <span>{spec.label}</span>
-              <select value={String(values[spec.key])} onChange={(e) => setParam(spec.key, e.target.value)}>
-                {spec.options.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div key={spec.key} className="fd-choice">
+              <Select label={spec.label} orientation="horizontal" width="fit" selectedKey={String(values[spec.key])} onSelectionChange={(v) => setParam(spec.key, v)} options={spec.options.map((o) => ({ value: o, label: o }))} />
+            </div>
           ) : null,
         )}
       </section>
@@ -105,14 +101,7 @@ export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemov
       )}
 
       <footer className="fd-inspector-actions">
-        <select aria-label="Add a stage after this one" value="" onChange={(e) => e.target.value && onAdd(e.target.value)}>
-          <option value="">Add after…</option>
-          {Object.values(KINDS).map((k) => (
-            <option key={k.kind} value={k.kind}>
-              {k.title}
-            </option>
-          ))}
-        </select>
+        <MenuButton label="Add after…" items={KIND_ITEMS} onAction={onAdd} />
         <button type="button" className="fd-danger" onClick={onRemove}>Remove</button>
       </footer>
     </aside>

@@ -17,12 +17,21 @@ export async function serve() {
   throw new Error(`the preview server never answered on ${URL}`);
 }
 
+/** Opens the lab's preset menu, a kit Select whose list lives in a popover. */
+const openPresets = (page) => page.locator('.fd-preset button').first().click();
+
 /** The presets the lab offers, by name. */
-export const presetNames = (page) => page.$$eval('.fd-preset select option', (os) => os.map((o) => o.value).filter(Boolean));
+export async function presetNames(page) {
+  await openPresets(page);
+  const names = (await page.getByRole('option').allTextContents()).map((t) => t.trim()).filter((t) => t && t !== '(edited)');
+  await page.keyboard.press('Escape');
+  return names;
+}
 
 /** Picks a preset from the lab's preset menu and waits for the tree to redraw. */
 export async function choosePreset(page, name) {
-  await page.selectOption('.fd-preset select', name);
+  await openPresets(page);
+  await page.getByRole('option', { name, exact: true }).click();
   await page.waitForTimeout(300);
 }
 

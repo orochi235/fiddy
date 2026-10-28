@@ -65,8 +65,7 @@
   margin-top: 18px;
 }
 
-.fd-inspector-actions button,
-.fd-inspector-actions select {
+.fd-inspector-actions > button {
   padding: 4px 8px;
   border: 1px solid var(--fd-line);
   border-radius: 4px;

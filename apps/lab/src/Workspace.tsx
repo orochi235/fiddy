@@ -1,5 +1,5 @@
 import { animate, emptySkeleton, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
-import { ResizeHandle } from '@weasel-js/ui';
+import { ResizeHandle, Select } from '@weasel-js/ui';
 import { type CSSProperties, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
 import { usePaneWidth } from './paneWidth';
@@ -22,6 +22,9 @@ const lastSkeleton = (steps: readonly StageResult[]): Skeleton | null => {
   return null;
 };
 
+const PRESET_OPTIONS = PRESETS.map((p) => ({ value: p.name, label: p.name }));
+const presetOptions = (current: string) => (current === '' ? [{ value: '', label: '(edited)' }, ...PRESET_OPTIONS] : PRESET_OPTIONS);
+
 function freshId(stages: readonly Stage[], kind: string): string {
   const ids = new Set(stages.map((s) => s.id));
   for (let k = 1; ; k++) if (!ids.has(`${kind}-${k}`)) return `${kind}-${k}`;
@@ -37,7 +40,7 @@ export function Workspace() {
   const [reveal, setReveal] = useState<RevealMode>('grow');
   const [playing, setPlaying] = useState(false);
   const [view, setView] = useState<'2d' | '3d'>('2d');
-  const pipe = usePaneWidth('pipe', 240);
+  const pipe = usePaneWidth('pipe', 400);
   const inspector = usePaneWidth('inspector', 340);
 
   const animator = useMemo(() => animate(design), [design]);
@@ -100,17 +103,9 @@ export function Workspace() {
     // The sidebar widths change on every drag sample, so they reach the grid as custom properties.
     <div className="fd-workspace" style={{ '--fd-pipe': `${pipe.width}px`, '--fd-inspector': `${inspector.width}px` } as CSSProperties}>
       <div className="fd-workspace-pipe">
-        <label className="fd-preset">
-          <span>Preset</span>
-          <select value={state.preset} onChange={(e) => setState(presetState(e.target.value))}>
-            {state.preset === '' && <option value="">(edited)</option>}
-            {PRESETS.map((p) => (
-              <option key={p.name} value={p.name}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="fd-preset">
+          <Select label="Preset" orientation="horizontal" selectedKey={state.preset} onSelectionChange={(name) => name && setState(presetState(name))} options={presetOptions(state.preset)} />
+        </div>
         <Pipeline
           design={design}
           steps={steps}
