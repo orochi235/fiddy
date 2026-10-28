@@ -41,6 +41,8 @@ export interface Design {
   seed: number;
   stages: Stage[];
   time?: Partial<Timing>;
+  /** Where in its loop the design is posed, 0–1. `animate` sets it; a design without it stands at 0. */
+  clock?: number;
 }
 
 export const timingOf = (d: Design): Timing => ({ ...DEFAULT_TIMING, ...d.time });

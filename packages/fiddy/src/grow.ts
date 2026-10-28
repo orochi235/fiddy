@@ -23,14 +23,16 @@ export function growSteps(design: Design): StageResult[] {
     // One source for now; a graph will need a merge here.
     const input = (sources[0] as Skeleton | undefined) ?? emptySkeleton();
     try {
-      const { chosen, rest } = selectBuds(input, stage.input.select);
+      const kind = kindOf(stage.kind);
+      const { chosen, rest } = kind.whole ? { chosen: [...input.buds], rest: [] } : selectBuds(input, stage.input.select);
       const nodes = [...input.nodes];
-      const buds = kindOf(stage.kind).apply({
+      const buds = kind.apply({
         stage,
         params: paramsOf(stage),
         buds: chosen,
         nodes,
         rng: streamFor(design.seed, stage.id),
+        clock: design.clock ?? 0,
       });
       const skeleton = { nodes, buds: [...rest, ...buds] };
       out.set(stage.id, skeleton);

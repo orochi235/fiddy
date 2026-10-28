@@ -16,3 +16,9 @@ export function normalize(a: Vec3): Vec3 {
   const l = length(a);
   return l === 0 ? a : scale(a, 1 / l);
 }
+
+/** `v` turned by `angle` radians about the unit `axis`, right-handed (Rodrigues). */
+export function rotate(v: Vec3, axis: Vec3, angle: number): Vec3 {
+  const c = Math.cos(angle);
+  return add(add(scale(v, c), scale(cross(axis, v), Math.sin(angle))), scale(axis, dot(axis, v) * (1 - c)));
+}
