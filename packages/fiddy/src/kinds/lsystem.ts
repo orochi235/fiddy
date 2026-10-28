@@ -30,6 +30,7 @@ export function derivationSeeds(grammar: string, rng: Rng, count: number): numbe
 export const lsystem: StageKind = {
   kind: 'lsystem',
   title: 'L-system',
+  brief: ['n', 'delta'],
   params: [
     { key: 'grammar', label: 'Grammar', type: 'text', default: 'ω: F\np1: F → F[+F]F[-F]F' },
     { key: 'n', label: 'n', type: 'number', default: 4, min: 0, max: 12, step: 1 },

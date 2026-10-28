@@ -1,9 +1,10 @@
 import type { ParamValue, Stage } from '../design.js';
 import { lsystem } from './lsystem.js';
 import { seed } from './seed.js';
+import { weberPenn } from './weberpenn.js';
 import type { StageKind } from './types.js';
 
-export const KINDS: Readonly<Record<string, StageKind>> = { seed, lsystem };
+export const KINDS: Readonly<Record<string, StageKind>> = { seed, lsystem, weberpenn: weberPenn };
 
 export function kindOf(kind: string): StageKind {
   const k = KINDS[kind];

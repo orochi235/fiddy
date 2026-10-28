@@ -31,7 +31,7 @@ timeline (2026-10-27).
 | 3 | Stochastic rules | 2 | built |
 | 4 | Parametric rules: numbers, conditions, expressions | 3 | unbuilt |
 | 5 | Context-sensitive rules | 4 | unbuilt |
-| 6 | Recursive parametric generator (Weber–Penn style) | 1 | unbuilt |
+| 6 | Recursive parametric generator (Weber–Penn style) | 1 | built |
 | 7 | Space colonization | 1 | unbuilt |
 | 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | unbuilt |
 | 9 | Light competition (Palubicki-style) | 1, ideally 8 | unbuilt |
@@ -139,6 +139,34 @@ starts from each selected bud's frame; bracket depth is branch order.
 
 **Derivation and interpretation are cached separately.** The derived string depends only on the
 grammar and `n`; an animated angle or step length reruns only the turtle.
+
+## Weber–Penn
+
+The `weberpenn` kind (piece 6) grows a simplified Weber & Penn (1995) tree from each selected bud: a
+trunk along the bud's heading, then up to three levels of branches. Each stem is a polyline of
+`segments` pieces that bends by its curve, tapers, and carries its children spread evenly along it.
+
+- **Params are flat**, per-level ones suffixed with their level: `branches1`, `length1`, `angle1`, and so
+  on to 3 (2026-10-28).
+- **Branch counts are exact**: every stem at level n − 1 gets `branches{n}` children, so a level holds the
+  product of the counts above it. Weber & Penn's count scaling by parent length was left out
+  (2026-10-28).
+- **Lengths follow the paper**: a first-level branch is `length1` × the trunk's length × the `shape`
+  ratio at its height (conical, spherical, flame, and the rest of the paper's eight); a deeper one is
+  `length{n}` × (parent length − 0.6 × its offset). A child's radius is the parent's times
+  (child length / parent length)^`ratioPower`, capped at the parent's radius where it hangs (2026-10-28).
+- **Directions use the turtle's own turns**: a child rolls about its parent's heading by a running
+  `rotate` (140° by default, the paper's phyllotaxis), then yaws away by `angle{n}`. At `rotate` 180°
+  the tree stays in the screen plane, which suits the 2D view (2026-10-28).
+- **One curvature per role**: `curve` bends the trunk, `bend` curls every branch back toward its
+  parent's axis; each is the total turn across the stem (2026-10-28).
+- **One `vary`** scales every length, angle, rotation, and bend by a random factor in 1 ± `vary`, in
+  place of the paper's per-level variation params (2026-10-28).
+- **A bud at every stem's tip**, at its order (the incoming bud's plus its level), so a later stage
+  can continue from twigs with a selector such as `order ≥ 2` (2026-10-28).
+- **`StageKind.brief`** names the params a pipeline box shows, since a box listing every number param
+  would run to twenty rows; the L-system's `n` and `δ` moved there from a special case in the lab
+  (2026-10-28).
 
 ## Timing
 

@@ -27,7 +27,7 @@ function shownParams(stage: Stage): EffectParam[] {
   if (!kind) return [];
   const values = paramsOf(stage);
   const out: EffectParam[] = [];
-  const show = stage.kind === 'lsystem' ? ['n', 'delta'] : kind.params.filter((p) => p.type === 'number').map((p) => p.key);
+  const show = kind.brief ?? kind.params.filter((p) => p.type === 'number').map((p) => p.key);
   for (const key of show) {
     const spec = kind.params.find((p) => p.key === key);
     if (!spec || spec.type !== 'number') continue;

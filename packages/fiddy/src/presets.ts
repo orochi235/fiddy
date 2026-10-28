@@ -13,12 +13,14 @@ function lsystem(id: string, grammar: string, n: number, delta: number, more: St
   return { id, kind: 'lsystem', params: { grammar, n, delta, ...more }, input: { from: [], ...(select ? { select } : {}) } };
 }
 
+const weberPenn = (id: string, params: Stage['params']): Stage => ({ id, kind: 'weberpenn', params, input: { from: [] } });
+
 const one = (grammar: string, n: number, delta: number) => (): Design => ({
   seed: 1,
   stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
 });
 
-/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, and designs built on them. */
+/** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 and 1.27, Weber–Penn trees, and designs built on them. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
@@ -50,6 +52,27 @@ export const PRESETS: readonly Preset[] = [
         seed(),
         lsystem('trunk', 'ω: FA\np1: A → !F[+FA][-FA]', 3, 30, { step: 4, width: 2 }),
         lsystem('crown', 'ω: X\np1: X (.5) → F[+X][-X]FX\np2: X (.3) → F[+X]FX\np3: X (.2) → F[-X]FX\np4: F → FF', 4, 25.7, { width: 0.6 }, { minOrder: 2 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Weber–Penn',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        seed(),
+        weberPenn('tree', { levels: 3, length: 12, width: 0.6, branches1: 16, branches2: 6, branches3: 3, curve: 8, bend: 30 }),
+      ]),
+    }),
+  },
+  {
+    name: 'Weber–Penn, L-system twigs',
+    design: () => ({
+      seed: 1,
+      stages: restack([
+        seed(),
+        weberPenn('limbs', { levels: 2, shape: 'spherical', length: 10, width: 0.6, branches1: 12, branches2: 5, rotate: 180, bend: 25 }),
+        lsystem('twigs', 'ω: X\np1: X → F[+X][-X]FX\np2: F → FF', 3, 25.7, { step: 0.12, width: 0.05 }, { minOrder: 2 }),
       ]),
     }),
   },

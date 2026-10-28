@@ -34,6 +34,8 @@ export interface StageKind {
   kind: string;
   title: string;
   params: readonly ParamSpec[];
+  /** The params a summary such as a pipeline box shows; every number param when absent. */
+  brief?: readonly string[];
   /** Takes no time in growth playback. */
   instant?: boolean;
   apply(ctx: StageContext): Bud[];
