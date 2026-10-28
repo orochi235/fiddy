@@ -5,6 +5,7 @@ import { PRESETS } from '../presets.js';
 import type { Skeleton } from '../skeleton.js';
 import { toGlb } from './gltf.js';
 import { leafMesh } from './leaves.js';
+import { polygonMesh } from './polygons.js';
 import { tubeMesh } from './tube.js';
 
 /** A trunk of two segments with one branch off its middle. */
@@ -19,6 +20,7 @@ const SMALL: Skeleton = {
     { node: 2, frame: { ...UPRIGHT, pos: [0, 4, 0] }, order: 0, vigor: 1 },
     { node: 3, frame: { ...UPRIGHT, pos: [2, 3, 0] }, order: 1, vigor: 1 },
   ],
+  polygons: [],
 };
 
 describe('tubeMesh', () => {
@@ -62,6 +64,15 @@ describe('leafMesh', () => {
     const ys = Array.from({ length: perLeaf }, (_, i) => m.positions[3 * i + 1]!);
     expect(Math.min(...ys)).toBeCloseTo(4);
     expect(Math.max(...ys)).toBeCloseTo(6);
+  });
+});
+
+describe('polygonMesh', () => {
+  it('fans each polygon from its first corner, facing along its normal', () => {
+    const square = { node: 0, stage: 's', module: 0, points: [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]] as const };
+    const m = polygonMesh({ ...SMALL, polygons: [square] });
+    expect(Array.from(m.indices)).toEqual([0, 1, 2, 0, 2, 3]);
+    expect(Array.from(m.normals.slice(0, 3))).toEqual([0, 0, 1]);
   });
 });
 

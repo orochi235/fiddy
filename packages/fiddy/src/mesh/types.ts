@@ -5,6 +5,18 @@ export interface Mesh {
   indices: Uint32Array;
 }
 
+/** The meshes as one, indices shifted to match. */
+export function joinMeshes(...meshes: readonly Mesh[]): Mesh {
+  const b = new MeshBuilder();
+  for (const m of meshes) {
+    const base = b.positions.length / 3;
+    b.positions.push(...m.positions);
+    b.normals.push(...m.normals);
+    for (const i of m.indices) b.indices.push(base + i);
+  }
+  return b.build();
+}
+
 /** A mesh under construction, grown with plain arrays and frozen once. */
 export class MeshBuilder {
   readonly positions: number[] = [];

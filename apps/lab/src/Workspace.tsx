@@ -1,4 +1,4 @@
-import { animate, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
+import { animate, emptySkeleton, growSteps, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
 import { Pipeline } from './pipeline/Pipeline';
@@ -71,7 +71,7 @@ export function Workspace() {
   const good = useRef<Skeleton | null>(null);
   const current = failed ? null : lastSkeleton(shownSteps);
   if (current) good.current = current;
-  const skeleton = current ?? good.current ?? { nodes: [], buds: [] };
+  const skeleton = current ?? good.current ?? emptySkeleton();
   const finished = lastSkeleton(steps) ?? skeleton;
   const treeReveal = useMemo(() => ({ grown: moment.grown, mode: reveal }), [moment.grown, reveal]);
 

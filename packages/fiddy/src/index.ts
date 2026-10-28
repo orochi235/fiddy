@@ -26,10 +26,11 @@ export { type Grammar, type Module, ModuleCapError, type ModuleTemplate, ParseEr
 export { EASES, type Ease, type KeysMotion, type Motion, newMotion, sanitizeMotion, WAVE_SHAPES, type WaveMotion, type WaveShape } from './motion.js';
 export { PRESETS, type Preset } from './presets.js';
 export { hashString, mulberry32, type Rng, streamFor } from './random.js';
-export { type Bud, emptySkeleton, type Skeleton, skeletonHash, type TreeNode } from './skeleton.js';
+export { type Bud, emptySkeleton, type Polygon, type Skeleton, skeletonHash, type TreeNode } from './skeleton.js';
 export type { Vec3 } from './vec.js';
 export { blow, type Wind } from './wind.js';
 export { type GlbPart, toGlb } from './mesh/gltf.js';
 export { type LeafOptions, leafMesh } from './mesh/leaves.js';
+export { polygonMesh } from './mesh/polygons.js';
 export { type TubeOptions, tubeMesh } from './mesh/tube.js';
-export type { Mesh } from './mesh/types.js';
+export { joinMeshes, type Mesh } from './mesh/types.js';

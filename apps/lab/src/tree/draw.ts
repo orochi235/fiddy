@@ -1,5 +1,5 @@
 import type { Skeleton, TreeNode } from 'fiddy';
-import { ACCENT, DIM, HOVER, INK } from '../colors';
+import { ACCENT, DIM, HOVER, INK, LEAF } from '../colors';
 
 export type RevealMode = 'grow' | 'turtle';
 
@@ -84,7 +84,7 @@ export interface DrawOptions {
   weight?: number;
 }
 
-/** Draws the skeleton's segments into a context already sized to `width` × `height` in its
+/** Draws the skeleton's segments and polygons into a context already sized to `width` × `height` in its
  *  own units, and returns the fit it used. */
 export function drawSkeleton(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, s: Skeleton, o: DrawOptions): Fit {
   const fit = fitOf(o.fitTo ?? s.nodes, o.width, o.height, o.pad ?? 12);
@@ -105,6 +105,15 @@ export function drawSkeleton(ctx: CanvasRenderingContext2D | OffscreenCanvasRend
     ctx.moveTo(p.pos[0] * fit.scale + fit.ox, fit.oy - p.pos[1] * fit.scale);
     ctx.lineTo(x * fit.scale + fit.ox, fit.oy - y * fit.scale);
     ctx.stroke();
+  }
+  for (const g of s.polygons) {
+    const n = s.nodes[g.node]!;
+    if (shown(n, n.parent === null ? undefined : s.nodes[n.parent], o.reveal, ext) < 1) continue;
+    const hot = o.hover && g.stage === o.hover.stage && g.module === o.hover.module && g.bud === o.hover.bud;
+    ctx.fillStyle = hot ? HOVER : o.selected == null ? LEAF : g.stage === o.selected ? ACCENT : DIM;
+    ctx.beginPath();
+    for (const p of g.points) ctx.lineTo(p[0] * fit.scale + fit.ox, fit.oy - p[1] * fit.scale);
+    ctx.fill();
   }
   return fit;
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { UPRIGHT } from '../frame.js';
-import type { TreeNode } from '../skeleton.js';
+import type { Polygon, TreeNode } from '../skeleton.js';
 import { PRESETS } from '../presets.js';
 import { parseGrammar, takeDefines } from './parse.js';
 import { derivations, derive, moduleText, templateText } from './rewrite.js';
@@ -209,9 +209,10 @@ const BUD = { node: 0, frame: UPRIGHT, order: 0, vigor: 1 };
 
 function walk(text: string) {
   const nodes: TreeNode[] = [ROOT];
-  const buds = interpret(parseGrammar(`ω: ${text}`).axiom, BUD, nodes, OPTS);
+  const polygons: Polygon[] = [];
+  const buds = interpret(parseGrammar(`ω: ${text}`).axiom, BUD, nodes, polygons, OPTS);
   const at = (i: number) => nodes[i]!.pos.map((v) => Math.round(v * 1e9) / 1e9 + 0);
-  return { nodes, buds, at };
+  return { nodes, buds, polygons, at };
 }
 
 describe('interpret', () => {
@@ -238,5 +239,21 @@ describe('interpret', () => {
     expect(nodes.map((n) => n.parent)).toEqual([null, 0, null, 2]);
     expect(at(3)).toEqual([0, 3, 0]);
     expect(nodes[3]!.radius).toBe(0.5);
+  });
+
+  it('fills the positions a polygon passes through, drawing no nodes inside it', () => {
+    const { nodes, polygons } = walk('F[{f+f+f+f}]F');
+    expect(nodes.map((n) => n.parent)).toEqual([null, 0, 1]);
+    const round = (p: readonly number[]) => p.map((v) => Math.round(v * 1e9) / 1e9 + 0);
+    expect(polygons).toHaveLength(1);
+    expect(polygons[0]!.node).toBe(1);
+    expect(polygons[0]!.module).toBe(2);
+    expect(polygons[0]!.points.map(round)).toEqual([[0, 1, 0], [0, 2, 0], [-1, 2, 0], [-1, 1, 0]]);
+  });
+
+  it('takes only the corners . marks when any are marked, and drops one of under three', () => {
+    const { polygons } = walk('{.G+G.+G.}{.G.}');
+    expect(polygons).toHaveLength(1);
+    expect(polygons[0]!.points).toHaveLength(3);
   });
 });

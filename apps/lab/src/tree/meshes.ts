@@ -1,4 +1,4 @@
-import { leafMesh, type Mesh, type Skeleton, toGlb, tubeMesh } from 'fiddy';
+import { emptySkeleton, joinMeshes, leafMesh, type Mesh, polygonMesh, type Skeleton, toGlb, tubeMesh } from 'fiddy';
 import { Color } from 'three';
 import { BARK, LEAF } from '../colors';
 import { WEIGHT } from './draw';
@@ -23,12 +23,13 @@ function sizeOf(s: Skeleton): number {
   return s.nodes.length === 0 ? 1 : Math.max(1e-3, ...hi.map((h, k) => h - lo[k]!));
 }
 
-/** The bark and leaves of `s`, sized against `finished` so they stay put while the tree grows. */
+/** The bark and leaves of `s`, sized against `finished` so they stay put while the tree grows.
+ *  The leaves are a leaf at each bud and the polygons the grammar drew. */
 export function treeMeshes(s: Skeleton, finished: Skeleton, look: Look): { bark: Mesh; leaves: Mesh } {
   const size = sizeOf(finished);
   const bark = tubeMesh(s, { sides: 8, radiusScale: WEIGHT / 2, minRadius: size * 4e-4 });
-  const leaves = look.leaf > 0 ? leafMesh(s, { size: look.leaf * size }) : leafMesh({ nodes: [], buds: [] }, { size: 1 });
-  return { bark, leaves };
+  const buds = look.leaf > 0 ? leafMesh(s, { size: look.leaf * size }) : leafMesh(emptySkeleton(), { size: 1 });
+  return { bark, leaves: joinMeshes(buds, polygonMesh(s)) };
 }
 
 const linear = (hex: string): [number, number, number, number] => {

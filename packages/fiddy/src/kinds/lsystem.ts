@@ -40,7 +40,7 @@ export const lsystem: StageKind = {
     { key: 'thin', label: 'Thin (!)', type: 'number', default: 0.7, min: 0.05, max: 1, step: 0.01 },
     { key: 'cap', label: 'Module cap', type: 'number', default: DEFAULT_MODULE_CAP, min: 1000, max: 2_000_000, step: 1000 },
   ],
-  apply({ stage, params, buds, nodes, rng }) {
+  apply({ stage, params, buds, nodes, polygons, rng }) {
     const p = lsystemParams(params);
     const stochastic = grammarOf(p.grammar).stochastic;
     const seeds = derivationSeeds(p.grammar, rng, buds.length);
@@ -48,7 +48,7 @@ export const lsystem: StageKind = {
     const opts = { delta: p.delta * RAD, step: p.step, width: p.width, thin: p.thin, stage: stage.id, cap: p.cap };
     buds.forEach((bud, i) => {
       const modules = generationsOf(p.grammar, p.n, p.cap, seeds[i]).at(-1)!;
-      out.push(...interpret(modules, bud, nodes, stochastic ? { ...opts, bud: i } : opts));
+      out.push(...interpret(modules, bud, nodes, polygons, stochastic ? { ...opts, bud: i } : opts));
     });
     return out;
   },

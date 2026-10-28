@@ -30,12 +30,25 @@ export interface Bud {
   vigor: number;
 }
 
+/** A filled polygon an L-system drew between `{` and `}`, as ABOP draws leaves and petals. */
+export interface Polygon {
+  /** The node the turtle stood at when the polygon began: it shows and bends with that node. */
+  node: number;
+  points: readonly Vec3[];
+  stage: string;
+  /** The index of its `{` module. */
+  module: number;
+  /** As on a node: which bud's string `module` indexes, for a stochastic stage. */
+  bud?: number;
+}
+
 export interface Skeleton {
   nodes: readonly TreeNode[];
   buds: readonly Bud[];
+  polygons: readonly Polygon[];
 }
 
-export const emptySkeleton = (): Skeleton => ({ nodes: [], buds: [] });
+export const emptySkeleton = (): Skeleton => ({ nodes: [], buds: [], polygons: [] });
 
 /** A short fingerprint of a skeleton's nodes, coordinates rounded to a millionth so that
  *  floating-point noise below that does not count as a change. */

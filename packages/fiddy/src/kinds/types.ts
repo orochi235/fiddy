@@ -1,6 +1,6 @@
 import type { ParamValue, Stage } from '../design.js';
 import type { Rng } from '../random.js';
-import type { Bud, TreeNode } from '../skeleton.js';
+import type { Bud, Polygon, TreeNode } from '../skeleton.js';
 
 export type ParamSpec =
   | {
@@ -24,6 +24,8 @@ export interface StageContext {
   buds: readonly Bud[];
   /** The incoming nodes, which the stage appends to; new ids continue from its length. */
   nodes: TreeNode[];
+  /** The incoming polygons, which the stage may append to or move. */
+  polygons: Polygon[];
   rng: Rng;
   /** Where in its loop the design is posed, 0–1: the design's `clock`, or 0 without one. */
   clock: number;

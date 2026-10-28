@@ -50,6 +50,15 @@ export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24e', source: 'ABOP Fig. 1.24e', design: one('ω: X\np1: X → F[+X][-X]FX\np2: F → FF', 7, 25.7) },
   { name: 'Fig. 1.24f', source: 'ABOP Fig. 1.24f', design: one('ω: X\np1: X → F-[[X]+X]+F[+FX]-X\np2: F → FF', 5, 22.5) },
   {
+    name: 'Fig. 1.25',
+    source: 'ABOP Fig. 1.25',
+    design: one(
+      "ω: A\np1: A → [&FL!A]/////'[&FL!A]///////'[&FL!A]\np2: F → S/////F\np3: S → FL\np4: L → ['''^^{-f+f+f-|-f+f+f}]",
+      7,
+      22.5,
+    ),
+  },
+  {
     name: 'Fig. 1.27',
     source: 'ABOP Fig. 1.27',
     design: one('ω: F\np1: F (.33) → F[+F]F[-F]F\np2: F (.33) → F[+F]F\np3: F (.34) → F[-F]F', 5, 25.7),

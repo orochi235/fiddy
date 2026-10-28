@@ -1,5 +1,5 @@
 import { hashString } from './random.js';
-import type { Bud, TreeNode } from './skeleton.js';
+import type { Bud, Polygon, TreeNode } from './skeleton.js';
 import { add, cross, distance, rotate, sub, type Vec3 } from './vec.js';
 
 export interface Wind {
@@ -60,12 +60,13 @@ function pliancy(nodes: readonly TreeNode[], flex: number): Float64Array {
 
 /**
  * Bends the tree in the wind at `clock` (0–1 through the loop), putting a new object in `nodes`
- * for each node that moves, and returns `buds` moved with their nodes. Every segment turns about
+ * for each node that moves, moves each of `polygons` with its node, and returns `buds` moved with
+ * their nodes. Every segment turns about
  * one level axis across the wind, so a node's turn is its parent's plus its own; lengths hold,
  * and nodes without a parent stay put. `salt` sets each branch's phases. Node ids must be their
  * indices, parents before children, as `growSteps` builds them.
  */
-export function blow(nodes: TreeNode[], buds: readonly Bud[], w: Wind, clock: number, salt: number): Bud[] {
+export function blow(nodes: TreeNode[], buds: readonly Bud[], polygons: Polygon[], w: Wind, clock: number, salt: number): Bud[] {
   if (w.strength === 0 || nodes.length === 0) return [...buds];
   const give = pliancy(nodes, w.flex);
   const a = w.direction * RAD;
@@ -92,6 +93,13 @@ export function blow(nodes: TreeNode[], buds: readonly Bud[], w: Wind, clock: nu
     turn[i] = turn[p]! + peak * give[i]! * push[branch[i]!]!;
     nodes[i] = { ...node, pos: add(nodes[p]!.pos, rotate(sub(node.pos, rest[p]!.pos), axis, turn[i]!)) };
   }
+  polygons.forEach((g, i) => {
+    const t = turn[g.node]!;
+    if (t === 0) return;
+    const from = rest[g.node]!.pos;
+    const to = nodes[g.node]!.pos;
+    polygons[i] = { ...g, points: g.points.map((q) => add(to, rotate(sub(q, from), axis, t))) };
+  });
   return buds.map((b) => {
     const t = turn[b.node]!;
     const f = b.frame;

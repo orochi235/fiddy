@@ -26,15 +26,17 @@ export function growSteps(design: Design): StageResult[] {
       const kind = kindOf(stage.kind);
       const { chosen, rest } = kind.whole ? { chosen: [...input.buds], rest: [] } : selectBuds(input, stage.input.select);
       const nodes = [...input.nodes];
+      const polygons = [...input.polygons];
       const buds = kind.apply({
         stage,
         params: paramsOf(stage),
         buds: chosen,
         nodes,
+        polygons,
         rng: streamFor(design.seed, stage.id),
         clock: design.clock ?? 0,
       });
-      const skeleton = { nodes, buds: [...rest, ...buds] };
+      const skeleton = { nodes, buds: [...rest, ...buds], polygons };
       out.set(stage.id, skeleton);
       results.push({ stage: stage.id, skeleton, chosen: chosen.length });
     } catch (e) {

@@ -19,7 +19,7 @@ export const wind: StageKind = {
     { key: 'flex', label: 'Flex exponent', type: 'number', default: 3, min: 2, max: 6, step: 0.1 },
     { key: 'turbulence', label: 'Turbulence', type: 'number', default: 0.3, min: 0, max: 1, step: 0.01 },
   ],
-  apply({ params, buds, nodes, rng, clock }) {
+  apply({ params, buds, nodes, polygons, rng, clock }) {
     // Whole cycles per loop, so the wind meets itself where the loop wraps.
     const cycles = (key: string) => Math.max(0, Math.round(params[key] as number));
     const w = {
@@ -31,6 +31,6 @@ export const wind: StageKind = {
       flex: params.flex as number,
       turbulence: params.turbulence as number,
     };
-    return blow(nodes, buds, w, clock, Math.floor(rng() * 2 ** 32));
+    return blow(nodes, buds, polygons, w, clock, Math.floor(rng() * 2 ** 32));
   },
 };

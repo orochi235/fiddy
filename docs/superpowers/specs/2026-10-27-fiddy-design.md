@@ -156,6 +156,12 @@ default, adjustable); hitting the cap is a stage error.
 `\ /` roll, `|` turn around, `[ ]` push and pop, `!` thin the branch. Other symbols draw nothing. It
 starts from each selected bud's frame; bracket depth is branch order.
 
+**Polygons** (2026-10-28): `{ … }` fills a polygon, as ABOP draws leaves and petals. Inside the braces
+`F`, `f`, and `G` move without drawing; the corners are the positions `.` marks (cpfg's notation) or,
+with no `.`, every position the turtle reached (ABOP's). A polygon belongs to the node the turtle stood
+at when it opened: it shows when that node has grown, bends with it in wind, and is meshed as a fan from
+its first corner, which suits convex and star-shaped leaves but not concave ones.
+
 **Derivation and interpretation are cached separately.** The derived string depends only on the
 grammar and `n`; an animated angle or step length reruns only the turtle.
 
@@ -256,7 +262,7 @@ three.js.
   child, and every node of a run gets a ring, carried along by parallel transport so tubes do not
   twist. A node's other children start runs of their own from its position, at their own radius.
 - **Leaves** (`leafMesh`): one flat leaf at every open bud, along the bud's heading, each rolled by
-  the golden angle from the last. ABOP's polygon leaves (`{ … }`) are not drawn (2026-10-28).
+  the golden angle from the last. A grammar's polygons join them in the same mesh (`polygonMesh`).
 - **glTF** (`toGlb`): one binary file, a node, mesh, and material per part, Y up. Khronos's
   validator reports no errors or warnings on an exported Weber–Penn tree (2026-10-28).
 - **The lab's 3D view** builds tubes at half the 2D view's line weight per unit of radius, so the two

@@ -1,8 +1,8 @@
-import type { Bud, Skeleton, TreeNode } from 'fiddy';
+import type { Bud, Polygon, Skeleton, TreeNode } from 'fiddy';
 import { extents, type Reveal, shown } from './draw';
 
 /** The part of `s` grown so far: whole nodes, a partway segment cut where growth has reached,
- *  and only the buds whose node has finished growing. Ids are renumbered. */
+ *  and only the buds and polygons whose node has finished growing. Ids are renumbered. */
 export function revealed(s: Skeleton, reveal: Reveal): Skeleton {
   const ext = extents(s.nodes);
   const ids = new Map<number, number>();
@@ -20,5 +20,6 @@ export function revealed(s: Skeleton, reveal: Reveal): Skeleton {
     nodes.push({ ...n, id: nodes.length, parent: n.parent === null ? null : ids.get(n.parent)!, pos });
   }
   const buds: Bud[] = s.buds.filter((b) => whole.has(b.node)).map((b) => ({ ...b, node: ids.get(b.node)! }));
-  return { nodes, buds };
+  const polygons: Polygon[] = s.polygons.filter((g) => whole.has(g.node)).map((g) => ({ ...g, node: ids.get(g.node)! }));
+  return { nodes, buds, polygons };
 }
