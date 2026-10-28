@@ -35,7 +35,7 @@ timeline (2026-10-27).
 | 7 | Space colonization | 1 | built |
 | 8 | 3D: tube and leaf meshes, three.js view, glTF export | 1 | unbuilt |
 | 9 | Light competition (Palubicki-style) | 1, ideally 8 | built |
-| 10 | Wind: a time-dependent bend on the finished skeleton, on the blits mix | 1 | unbuilt |
+| 10 | Wind: a time-dependent bend on the finished skeleton, on the blits mix | 1 | built |
 
 Pieces 6 to 8 are independent of the L-system work and of each other.
 
@@ -262,6 +262,33 @@ blits is in from the start (2026-10-27):
   param's channel, set up as agnew's `animate.ts` does it.
 - **Scrubbing** reaches an earlier time by wrapping forward to the same point in a later pass of the
   loop, as agnew does, so going backward is exact without a history tape.
+
+## Wind
+
+Piece 10. Wind is a stage kind, `wind`, placed after the tree it bends, rather than a pass outside
+the stack: it then reaches previews, the URL, and `grow` like any stage, and needs nothing from the
+lab (2026-10-28).
+
+- **The clock is a channel on the blits mix.** `animate` writes `clock`, 0–1 through the loop, and
+  `at(t)` puts it on the design as `design.clock`; `growSteps` hands it to every kind as `ctx.clock`,
+  and a design without one stands at 0. A kind marked `clocked` makes the design count as `moving`, so
+  the lab regrows it every frame as it does for a motion (2026-10-28).
+- **It takes no time and bends everything.** The kind is `instant`, so it has no band in the score, and
+  `whole`, so its selector is ignored and every incoming bud is moved with its node (2026-10-28).
+- **The bend.** Every segment turns about one level axis across the wind, so the turns add down the
+  chain from root to tip and each node costs one rotation. A segment's share is its length times the
+  length it carries, over its girth to the flex exponent; girth is radius times √(length carried), the
+  pipe model, so an L-system drawn at one radius still stiffens toward the root. Shares are scaled so
+  the most pliant chain sums to 1, which makes `strength` the lean of the most pliant tip at the top of
+  a gust (2026-10-28).
+- **Gusts, sway, and turbulence come in whole cycles per loop**, as a wave motion's `cycles` do, so the
+  wind meets itself where the loop wraps. Gusts lower the whole tree's push by up to `gustiness`; each
+  branch (a run of nodes at one order) sways on its own phase, with a flutter at three times the sway
+  on another, both hashed from the stage's stream and the branch's first node (2026-10-28).
+- **Nodes without a parent stay put**, so the root never moves, and neither does anything hung from an
+  `f` anchor. Wind belongs last: a stage after it grows from the bent buds, unbent itself (2026-10-28).
+- **Cost** (measured 2026-10-28, vitest on this machine): the wind pass takes about 1 ms a frame on
+  the 4,119 nodes of the `Fig. 1.24d, in wind` preset, beside 1.5 ms to regrow the L-system under it.
 
 ## Lab
 

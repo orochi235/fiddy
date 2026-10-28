@@ -41,6 +41,7 @@ export function envelopeFor(buds: readonly Bud[], p: ReturnType<typeof colonizeP
 export const colonizeKind: StageKind = {
   kind: 'colonize',
   title: 'Space colonization',
+  brief: ['points', 'influence', 'kill'],
   params: [
     { key: 'shape', label: 'Crown', type: 'choice', default: 'ellipsoid', options: SHAPES },
     { key: 'points', label: 'Points', type: 'number', default: 1500, min: 0, max: 20000, step: 10 },

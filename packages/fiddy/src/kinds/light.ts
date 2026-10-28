@@ -8,6 +8,7 @@ const RAD = Math.PI / 180;
 export const light: StageKind = {
   kind: 'light',
   title: 'Light competition',
+  brief: ['cycles', 'lambda', 'shadow'],
   params: [
     { key: 'cycles', label: 'Cycles', type: 'number', default: 12, min: 1, max: 30, step: 1 },
     { key: 'lambda', label: 'λ (apical)', type: 'number', default: 0.62, min: 0, max: 1, step: 0.01 },

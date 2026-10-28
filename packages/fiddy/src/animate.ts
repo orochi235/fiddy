@@ -10,7 +10,7 @@ export interface Moment {
 }
 
 export interface Animator {
-  /** Whether any param moves. */
+  /** Whether the design changes over the loop: a param moves, or a stage follows the clock. */
   readonly moving: boolean;
   /** Seconds one loop lasts. */
   readonly loop: number;
@@ -23,6 +23,7 @@ export interface Animator {
 const SUBJECT = 'design';
 type Pose = Record<string, number>;
 
+const CLOCK = 'clock';
 const growChannel = (stage: string) => `grow.${stage}`;
 const paramChannel = (stage: string, key: string) => `${stage}.${key}`;
 
@@ -53,8 +54,8 @@ function motionPatch(channel: string, motion: Motion, loopMs: number, kit: Recor
 }
 
 /** One blits mix over the design's timeline: a looping voice that grows each stage in turn and
- *  holds the finished tree, and a looping voice per param motion. A wave adds to the set value;
- *  keys replace it. */
+ *  holds the finished tree, a looping voice per param motion, and the loop's clock. A wave adds
+ *  to the set value; keys replace it. */
 export function animate(design: Design): Animator {
   const { loop } = timingOf(design);
   const loopMs = loop * 1000;
@@ -68,6 +69,7 @@ export function animate(design: Design): Animator {
   const kit: Record<string, Channel<number>> = {};
   for (const s of spans) kit[growChannel(s.stage)] = sum();
   for (const m of movers) kit[m.channel] = sum();
+  kit[CLOCK] = sum();
   const timeline = mix<string, Pose>(kit);
 
   const growth = patch<string, Pose>(
@@ -81,6 +83,7 @@ export function animate(design: Design): Animator {
     { writes: spans.map((s) => growChannel(s.stage)) },
   );
   timeline.cue({ patch: growth, loop: true, start: 0 });
+  timeline.cue({ patch: patch<string, Pose>(loopMs, (phase) => ({ [CLOCK]: phase }), { writes: [CLOCK] }), loop: true, start: 0 });
   for (const m of movers) timeline.cue({ patch: motionPatch(m.channel, m.motion, loopMs, kit), loop: true, start: 0 });
 
   // The mix's clock runs forward only: an earlier point in the loop is reached by wrapping
@@ -89,7 +92,7 @@ export function animate(design: Design): Animator {
   let last = -1;
   const pose: Pose = {};
   return {
-    moving: movers.length > 0,
+    moving: movers.length > 0 || design.stages.some((s) => KINDS[s.kind]?.clocked),
     loop,
     spans,
     at(seconds) {
@@ -108,7 +111,8 @@ export function animate(design: Design): Animator {
       };
       const grown: Record<string, number> = {};
       for (const s of spans) grown[s.stage] = read(growChannel(s.stage)) ?? 1;
-      return { design: { ...design, stages: design.stages.map((s) => settle(s, read)) }, grown };
+      const clock = read(CLOCK) ?? 0;
+      return { design: { ...design, clock, stages: design.stages.map((s) => settle(s, read)) }, grown };
     },
   };
 }

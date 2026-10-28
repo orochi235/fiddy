@@ -25,6 +25,8 @@ export interface StageContext {
   /** The incoming nodes, which the stage appends to; new ids continue from its length. */
   nodes: TreeNode[];
   rng: Rng;
+  /** Where in its loop the design is posed, 0–1: the design's `clock`, or 0 without one. */
+  clock: number;
 }
 
 /** One kind of stage: its params as data, which a UI builds its fields from, and what it does.
@@ -38,5 +40,9 @@ export interface StageKind {
   brief?: readonly string[];
   /** Takes no time in growth playback. */
   instant?: boolean;
+  /** Changes with the loop's clock, so a design holding one moves in playback. */
+  clocked?: boolean;
+  /** Works on the whole incoming tree: the selector is ignored and every bud is passed in. */
+  whole?: boolean;
   apply(ctx: StageContext): Bud[];
 }

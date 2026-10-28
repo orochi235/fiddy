@@ -34,7 +34,7 @@ function shownParams(stage: Stage): EffectParam[] {
     const moving = stage.motion?.[key] ? ' ~' : '';
     out.push({ id: key, label: spec.label, value: `${num(values[key] as number)}${spec.suffix ?? ''}${moving}` });
   }
-  const sel = selectorText(stage.input.select);
+  const sel = kind.whole ? null : selectorText(stage.input.select);
   if (sel) out.push({ id: 'select', label: 'buds', value: sel });
   return out;
 }

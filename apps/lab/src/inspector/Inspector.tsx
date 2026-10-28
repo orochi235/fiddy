@@ -56,17 +56,19 @@ export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemov
         <code>{stage.id}</code>
       </header>
 
-      <section className="fd-inspector-section">
-        <h4>Grows from</h4>
-        <div className="fd-select">
-          {SELECTOR_FIELDS.map((f) => (
-            <label key={f.key}>
-              <span>{f.label}</span>
-              <input type="number" step={f.step} placeholder="any" value={stage.input.select?.[f.key] ?? ''} onChange={(e) => setSelect(f.key, e.target.value)} />
-            </label>
-          ))}
-        </div>
-      </section>
+      {!kind?.whole && (
+        <section className="fd-inspector-section">
+          <h4>Grows from</h4>
+          <div className="fd-select">
+            {SELECTOR_FIELDS.map((f) => (
+              <label key={f.key}>
+                <span>{f.label}</span>
+                <input type="number" step={f.step} placeholder="any" value={stage.input.select?.[f.key] ?? ''} onChange={(e) => setSelect(f.key, e.target.value)} />
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="fd-inspector-section">
         <h4>Settings</h4>

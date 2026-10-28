@@ -5,8 +5,9 @@ import { lsystem } from './lsystem.js';
 import { seed } from './seed.js';
 import { weberPenn } from './weberpenn.js';
 import type { StageKind } from './types.js';
+import { wind } from './wind.js';
 
-export const KINDS: Readonly<Record<string, StageKind>> = { seed, lsystem, weberpenn: weberPenn, colonize: colonizeKind, light };
+export const KINDS: Readonly<Record<string, StageKind>> = { seed, lsystem, weberpenn: weberPenn, colonize: colonizeKind, light, wind };
 
 export function kindOf(kind: string): StageKind {
   const k = KINDS[kind];

@@ -24,9 +24,9 @@ const colonize = (id: string, params: Stage['params'], select?: Stage['input']['
 
 const light = (id: string, params: Stage['params'] = {}): Stage => ({ id, kind: 'light', params, input: { from: [] } });
 
-const one = (grammar: string, n: number, delta: number) => (): Design => ({
+const one = (grammar: string, n: number, delta: number, ...after: Stage[]) => (): Design => ({
   seed: 1,
-  stages: restack([seed(), lsystem('plant', grammar, n, delta)]),
+  stages: restack([seed(), lsystem('plant', grammar, n, delta), ...after]),
 });
 
 /** An L-system whose turns are all written as parameters, so δ does not matter. */
@@ -35,13 +35,18 @@ const param = (grammar: string, n: number, more: Stage['params']) => (): Design 
   stages: restack([seed(), lsystem('plant', grammar, n, 0, more)]),
 });
 
+const FIG_1_24D = 'ω: X\np1: X → F[+X]F[-X]+X\np2: F → FF';
+
+const wind = (): Stage => ({ id: 'wind', kind: 'wind', params: {}, input: { from: [] } });
+
 /** The bracketed plants of *The Algorithmic Beauty of Plants*, Figs. 1.24 to 1.31 and chapter 2, Weber–Penn trees, space-colonized
  *  crowns, trees grown by light competition, and designs built on them. */
 export const PRESETS: readonly Preset[] = [
   { name: 'Fig. 1.24a', source: 'ABOP Fig. 1.24a', design: one('ω: F\np1: F → F[+F]F[-F]F', 5, 25.7) },
   { name: 'Fig. 1.24b', source: 'ABOP Fig. 1.24b', design: one('ω: F\np1: F → F[+F]F[-F][F]', 5, 20) },
   { name: 'Fig. 1.24c', source: 'ABOP Fig. 1.24c', design: one('ω: F\np1: F → FF-[-F+F+F]+[+F-F-F]', 4, 22.5) },
-  { name: 'Fig. 1.24d', source: 'ABOP Fig. 1.24d', design: one('ω: X\np1: X → F[+X]F[-X]+X\np2: F → FF', 7, 20) },
+  { name: 'Fig. 1.24d', source: 'ABOP Fig. 1.24d', design: one(FIG_1_24D, 7, 20) },
+  { name: 'Fig. 1.24d, in wind', design: one(FIG_1_24D, 7, 20, wind()) },
   { name: 'Fig. 1.24e', source: 'ABOP Fig. 1.24e', design: one('ω: X\np1: X → F[+X][-X]FX\np2: F → FF', 7, 25.7) },
   { name: 'Fig. 1.24f', source: 'ABOP Fig. 1.24f', design: one('ω: X\np1: X → F-[[X]+X]+F[+FX]-X\np2: F → FF', 5, 22.5) },
   {
