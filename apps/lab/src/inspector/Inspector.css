@@ -66,13 +66,21 @@
   margin-top: 18px;
 }
 
-.fd-inspector-actions button {
+.fd-inspector-actions button,
+.fd-inspector-actions select {
   padding: 4px 8px;
   border: 1px solid var(--fd-line);
   border-radius: 4px;
   background: var(--fd-ground);
   color: var(--fd-ink);
   cursor: pointer;
+}
+
+.fd-choice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px 0;
 }
 
 .fd-inspector-actions .fd-danger {

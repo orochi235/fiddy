@@ -80,6 +80,17 @@ export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemov
               onValue={(v) => setParam(spec.key, v)}
               onMotion={(m) => setMotion(spec.key, m)}
             />
+          ) : spec.type === 'choice' ? (
+            <label key={spec.key} className="fd-choice">
+              <span>{spec.label}</span>
+              <select value={String(values[spec.key])} onChange={(e) => setParam(spec.key, e.target.value)}>
+                {spec.options.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </label>
           ) : null,
         )}
       </section>
@@ -92,8 +103,14 @@ export function Inspector({ stage, seed, hover, onHover, onStage, onAdd, onRemov
       )}
 
       <footer className="fd-inspector-actions">
-        <button type="button" onClick={() => onAdd('lsystem')}>Add L-system after</button>
-        <button type="button" onClick={() => onAdd('seed')}>Add seed after</button>
+        <select aria-label="Add a stage after this one" value="" onChange={(e) => e.target.value && onAdd(e.target.value)}>
+          <option value="">Add after…</option>
+          {Object.values(KINDS).map((k) => (
+            <option key={k.kind} value={k.kind}>
+              {k.title}
+            </option>
+          ))}
+        </select>
         <button type="button" className="fd-danger" onClick={onRemove}>Remove</button>
       </footer>
     </aside>

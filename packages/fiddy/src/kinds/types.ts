@@ -13,7 +13,8 @@ export type ParamSpec =
       step: number;
       suffix?: string;
     }
-  | { key: string; label: string; type: 'text'; default: string };
+  | { key: string; label: string; type: 'text'; default: string }
+  | { key: string; label: string; type: 'choice'; default: string; options: readonly string[] };
 
 export interface StageContext {
   stage: Stage;
