@@ -24,7 +24,8 @@ const openPresets = (page) => page.locator('#fd-preset').click();
 export async function presetNames(page) {
   await openPresets(page);
   const names = (await page.getByRole('option').allTextContents()).map((t) => t.trim()).filter((t) => t && t !== '(edited)');
-  await page.keyboard.press('Escape');
+  // Escape leaves the menu open in the lab (TODO.md), so close it by picking the current preset.
+  await page.locator('[role=option][aria-selected=true]').click();
   return names;
 }
 

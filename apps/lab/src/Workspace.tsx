@@ -1,4 +1,4 @@
-import { animate, emptySkeleton, growSteps, pose, PRESETS, type Skeleton, type Stage, type StageResult } from 'fiddy';
+import { animate, emptySkeleton, growSteps, PRESETS, type Skeleton, type Stage } from 'fiddy';
 import { PropertyRow, ResizeHandle, Select } from '@weasel-js/ui';
 import { type CSSProperties, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Inspector } from './inspector/Inspector';
@@ -8,19 +8,12 @@ import { editStage, useFiddy, withStages } from './session';
 import { presetState, writeHash } from './state';
 import { Transport } from './transport/Transport';
 import type { Hover, RevealMode } from './tree/draw';
+import { lastGrown, treeAt } from './tree/shown';
 import { TreeView } from './tree/TreeView';
 
 // three.js loads only once the 3D view is first shown.
 const TreeView3D = lazy(() => import('./tree/TreeView3D').then((m) => ({ default: m.TreeView3D })));
 import './Workspace.css';
-
-const lastGrown = (steps: readonly StageResult[]): Extract<StageResult, { raw: Skeleton }> | null => {
-  for (let i = steps.length - 1; i >= 0; i--) {
-    const s = steps[i]!;
-    if ('raw' in s) return s;
-  }
-  return null;
-};
 
 const PRESET_OPTIONS = PRESETS.map((p) => ({ value: p.name, label: p.name }));
 const presetOptions = (current: string) => (current === '' ? [{ value: '', label: '(edited)' }, ...PRESET_OPTIONS] : PRESET_OPTIONS);
@@ -71,16 +64,8 @@ export function Workspace() {
 
   const moment = useMemo(() => animator.at(Math.min(t, animator.loop)), [animator, t]);
   const steps = useMemo(() => growSteps(design), [design]);
-  // A moving param regrows the tree each frame; a still design reuses the steps the pipeline drew.
-  const shownSteps = useMemo(() => (animator.moving ? growSteps(moment.design) : steps), [animator, moment, steps]);
-
-  const failed = shownSteps.some((s) => 'error' in s);
+  const { skeleton: current, failed } = useMemo(() => treeAt(animator, steps, moment, reveal), [animator, steps, moment, reveal]);
   const good = useRef<Skeleton | null>(null);
-  const grown = failed ? null : lastGrown(shownSteps);
-  const current = useMemo(
-    () => (grown ? pose(grown.raw, moment.design, moment.time, reveal === 'turtle' ? 'module' : 'born') : null),
-    [grown, moment, reveal],
-  );
   if (current) good.current = current;
   const skeleton = current ?? good.current ?? emptySkeleton();
   const finished = lastGrown(steps)?.skeleton ?? skeleton;

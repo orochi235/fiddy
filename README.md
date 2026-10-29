@@ -47,5 +47,7 @@ successor, every generation, and the derived string, where hovering a symbol lig
 The bottom bar plays the design's loop and draws its score, one band per stage's growth and one curve per
 moving param (`~` beside a setting). The whole design lives in the URL hash.
 
-The pipeline column wants the diagram's vertical rack, `direction: 'down'`, which is merged in weasel but
-not yet in a release. Until one ships, the pinned 1.13.0 draws the rack horizontally.
+It is live at [michaelbaker.tech/fiddy/](https://michaelbaker.tech/fiddy/), deployed from `main` by
+`.github/workflows/pages.yml`. `?bare` is the chromeless view for embedding: the hash's tree alone,
+growing on a loop over a transparent page. `?bare=still` shows it finished, and `&bg=rrggbb` paints a
+backdrop.

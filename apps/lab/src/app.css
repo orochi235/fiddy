@@ -25,3 +25,8 @@ body {
   font-family: system-ui, sans-serif;
   font-size: 13px;
 }
+
+/* `?bare`: the tree alone, over the embedder's page unless `bg` names a backdrop. */
+.fd-bare body {
+  background: var(--fd-bare-bg, transparent);
+}
