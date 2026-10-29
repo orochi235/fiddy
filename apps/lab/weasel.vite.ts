@@ -1,4 +1,4 @@
-import { readdirSync, realpathSync, watch } from 'node:fs';
+import { existsSync, readdirSync, realpathSync, watch } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 
@@ -11,7 +11,10 @@ import type { Plugin } from 'vite';
 export const WEASEL = process.env.WEASEL ? resolve(process.env.WEASEL) : linkedCheckout();
 
 function linkedCheckout(): string | undefined {
-  const labkit = realpathSync(join(import.meta.dirname, '../../node_modules/@weasel-js/labkit'));
+  // npm installs it at the root or under the lab, whichever its hoisting picks that day.
+  const at = ['node_modules', '../../node_modules'].map((dir) => join(import.meta.dirname, dir, '@weasel-js/labkit')).find(existsSync);
+  if (!at) return undefined;
+  const labkit = realpathSync(at);
   return labkit.includes('/node_modules/') ? undefined : resolve(labkit, '../..');
 }
 
