@@ -10,3 +10,10 @@
   stays open, with focus on its selected option; clicking outside or picking an option closes it.
   Find whether labkit's shell or the `Select` swallows the key, and raise it in weasel.
   `scripts/serve.mjs` closes the menu by picking the current preset meanwhile.
+- **One work budget across every stage kind** (filed 2026-11-15 from automated review). Only the
+  L-system expander has a cap (`ModuleCapError`); colonization, light competition, the tube and leaf
+  meshes, and `animate` have none, so a valid but adversarial chain (a large `colonize` crown under a
+  deep `lsystem`) can hang the lab tab with nothing to report. `packages/fiddy/src/grow.ts:growSteps`
+  would carry a shared node/polygon budget and a cancellation signal into each `kind.apply`, keeping
+  per-stage errors and `unreached`. Each stage already draws from its own seeded stream
+  (`streamFor(seed, stage.id)`), and a budget must not change that.
