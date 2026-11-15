@@ -37,6 +37,21 @@ describe('growSteps', () => {
     expect(() => grow(design(stage('seed', 'seed'), stage('x', 'nope')))).toThrow('no stage kind');
   });
 
+  it('rejects a stage that reads from more than one stage', () => {
+    const d: Design = {
+      seed: 1,
+      stages: [
+        stage('s1', 'seed'),
+        stage('s2', 'seed'),
+        { ...stage('a', 'lsystem', { grammar: 'ω: F', n: 0 }), input: { from: ['s1', 's2'] } },
+        { ...stage('b', 'lsystem', { grammar: 'ω: F', n: 0 }), input: { from: ['a'] } },
+      ],
+    };
+    const steps = growSteps(d);
+    expect('error' in steps[2]! && steps[2].error.message).toMatch('only one is supported');
+    expect(steps[3]).toEqual({ stage: 'b', unreached: true });
+  });
+
   it('passes the buds a selector leaves on, open', () => {
     const d = design(
       stage('seed', 'seed'),

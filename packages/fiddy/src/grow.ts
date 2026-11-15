@@ -19,13 +19,17 @@ export function growSteps(design: Design): StageResult[] {
   const results: StageResult[] = [];
   const ends = new Map(spansOf(design).map((s) => [s.stage, s.end]));
   for (const stage of design.stages) {
+    if (stage.input.from.length > 1) {
+      out.set(stage.id, null);
+      results.push({ stage: stage.id, error: new Error(`stage ${stage.id} reads from ${stage.input.from.length} stages; only one is supported`) });
+      continue;
+    }
     const sources = stage.input.from.map((id) => out.get(id));
     if (sources.some((s) => s === null || s === undefined)) {
       out.set(stage.id, null);
       results.push({ stage: stage.id, unreached: true });
       continue;
     }
-    // One source for now; a graph will need a merge here.
     const input = (sources[0] as Skeleton | undefined) ?? emptySkeleton();
     try {
       const kind = kindOf(stage.kind);
