@@ -23,6 +23,7 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@msb235/alpo": "^0.1.0",
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

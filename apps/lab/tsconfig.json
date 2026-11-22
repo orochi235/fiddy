@@ -14,5 +14,5 @@
       "@lab/*": ["./src/*"]
     }
   },
-  "include": ["src", "vite.config.ts", "weasel.vite.ts"]
+  "include": ["src", "vite.config.ts"]
 }

@@ -3,3 +3,4 @@ dist/
 .superpowers/
 .playwright-mcp/
 .claude/worktrees/
+.alpo.local.json

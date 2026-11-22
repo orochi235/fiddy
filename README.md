@@ -33,8 +33,8 @@ npm run shots      # bundle the lab, post each preset's tree to the transom wall
 onto test          # the library suite, on the fleet
 ```
 
-The weasel packages are pinned to an exact npm version. `WEASEL=~/src/weasel npm run dev` serves that
-checkout's built `dist` instead, once its dists are current.
+The weasel packages are pinned to an exact npm version. `alpo link weasel` serves `~/src/weasel`'s built
+`dist` instead, once its dists are current; `alpo unlink weasel` goes back to npm.
 
 ## The lab
 
