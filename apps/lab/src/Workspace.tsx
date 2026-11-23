@@ -93,7 +93,7 @@ export function Workspace() {
       <div className="fd-workspace-pipe">
         <div className="fd-preset">
           <PropertyRow label="Preset" layout="inline" htmlFor="fd-preset">
-            <Select aria-label="Preset" triggerId="fd-preset" selectedKey={state.preset} onSelectionChange={(name) => name && setState(presetState(name))} options={presetOptions(state.preset)} />
+            <Select aria-label="Preset" id="fd-preset" selectedKey={state.preset} onSelectionChange={(name) => name && setState(presetState(name))} options={presetOptions(state.preset)} />
           </PropertyRow>
         </div>
         <Pipeline
@@ -104,7 +104,7 @@ export function Workspace() {
           onStages={(stages) => setState((s) => withStages(s, stages))}
         />
       </div>
-      <ResizeHandle className="fd-handle fd-handle--pipe" value={pipe.width} min={160} max={560} onInput={pipe.setWidth} onChange={pipe.save} ariaLabel="Resize pipeline" />
+      <ResizeHandle className="fd-handle fd-handle--pipe" value={pipe.width} min={160} max={560} onInput={pipe.setWidth} onChange={pipe.save} aria-label="Resize pipeline" />
       <div className="fd-workspace-tree">
         {view === '2d' ? (
           <TreeView skeleton={skeleton} fitTo={finished} selected={stage?.id ?? null} hover={hover} onHover={setHover} dimmed={failed} />
@@ -121,7 +121,7 @@ export function Workspace() {
           ))}
         </div>
       </div>
-      <ResizeHandle className="fd-handle fd-handle--inspector" value={inspector.width} min={240} max={720} invert onInput={inspector.setWidth} onChange={inspector.save} ariaLabel="Resize inspector" />
+      <ResizeHandle className="fd-handle fd-handle--inspector" value={inspector.width} min={240} max={720} invert onInput={inspector.setWidth} onChange={inspector.save} aria-label="Resize inspector" />
       <div className="fd-workspace-inspector">
         <Inspector
           stage={stage}
