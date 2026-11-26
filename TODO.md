@@ -17,3 +17,5 @@
   would carry a shared node/polygon budget and a cancellation signal into each `kind.apply`, keeping
   per-stage errors and `unreached`. Each stage already draws from its own seeded stream
   (`streamFor(seed, stage.id)`), and a budget must not change that.
+
+- **Behind on blits.** It pins a blits 0.x release (agnew 0.8.1, fiddy 0.14.0, read 2026-11-25) against the current 1.4.0, a real migration rather than a bump. Closes when it builds on blits 1.x.
