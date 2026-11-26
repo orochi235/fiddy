@@ -19,3 +19,16 @@
   (`streamFor(seed, stage.id)`), and a budget must not change that.
 
 - **Behind on blits.** It pins a blits 0.x release (agnew 0.8.1, fiddy 0.14.0, read 2026-11-25) against the current 1.4.0, a real migration rather than a bump. Closes when it builds on blits 1.x.
+
+## Use labkit's hash links and bare view
+
+weasel's labkit is gaining `@weasel-js/labkit/link` and `bareOf` (weasel batch 2026-11-26, unreleased).
+- `packLink`/`unpackLink`/`useHashLink` keep a lab's state in the URL hash. They're versioned: a link
+  from a newer version is refused with a report of what was dropped, and an older one goes through
+  `migrate`. The codec is JSON or a binary one you supply. Writing the hash never creates undo steps.
+- `bareOf` reads `?bare`, `?bare=still[=<ms>]` and `bg` (3, 4, 6 or 8 hex digits), beside labkit's
+  `still` and `present`.
+
+Old links with no version prefix read as version 0 and go through `migrate`, so existing shared links
+can keep working. Once a weasel release carries this, drop this repo's own copy: `apps/lab/src/state.ts` and `bare/Bare.tsx`.  Closes when the
+lab uses labkit's.
